@@ -373,6 +373,30 @@ export default function LandingPage() {
               <p className="text-gray-400 leading-relaxed">
                 The complete business operating system for solopreneurs and small businesses. Manage everything from one powerful platform.
               </p>
+              <div className="flex flex-col gap-3 pt-2">
+                <a
+                  href="https://www.linkedin.com/in/jaimin-bhatt-150268264"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <div className="w-5 h-5 flex items-center justify-center bg-blue-600 rounded">
+                    <span className="text-white text-xs font-bold">in</span>
+                  </div>
+                  Connect with Jaimin Bhatt
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/hostings"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+                >
+                  <div className="w-5 h-5 flex items-center justify-center bg-blue-800 rounded">
+                    <span className="text-white text-xs font-bold">in</span>
+                  </div>
+                  Follow Hostings
+                </a>
+              </div>
             </div>
 
             <div>
