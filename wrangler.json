@@ -1,5 +1,5 @@
 {
-    "name": "bizpilot-os",
+    "name": "bizpilot",
     "pages_build_output_dir": ".vercel/output/static",
     "compatibility_date": "2024-01-23",
     "compatibility_flags": [
