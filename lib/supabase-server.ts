@@ -4,12 +4,8 @@ import { cookies } from 'next/headers'
 export async function createClient() {
     const cookieStore = await cookies()
 
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    if (!url || !key) {
-        throw new Error('Supabase environment variables are missing at runtime. Please add them to Cloudflare Settings -> Functions.')
-    }
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://awofmvawjtaarkugxxww.supabase.co'
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3b2ZtdmF3anRhYXJrdWd4eHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5ODQ3ODEsImV4cCI6MjA4NDU2MDc4MX0.5LdZqE2qxN516JcegFhKiU7k7jA7iJ4ri8B92wG10CQ'
 
     return createServerClient(
         url,
