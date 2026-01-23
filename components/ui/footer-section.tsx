@@ -36,7 +36,7 @@ function Footerdemo() {
                         <p className="mb-6 text-muted-foreground text-sm">
                             The all-in-one operating system for freelancers and agencies. Streamline your workflow today.
                         </p>
-                        <form className="relative">
+                        <form className="relative mb-6">
                             <Input
                                 type="email"
                                 placeholder="Enter your email"
@@ -51,6 +51,16 @@ function Footerdemo() {
                                 <span className="sr-only">Subscribe</span>
                             </Button>
                         </form>
+                        <div className="flex flex-col gap-2">
+                            <a href="https://www.linkedin.com/in/jaimin-bhatt-150268264" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-blue-600 transition-colors">
+                                <Linkedin className="h-4 w-4" />
+                                <span>Connect with Jaimin Bhatt</span>
+                            </a>
+                            <a href="https://www.linkedin.com/company/hostings" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-blue-600 transition-colors">
+                                <Linkedin className="h-4 w-4" />
+                                <span>Follow Hostings</span>
+                            </a>
+                        </div>
                     </div>
                     <div>
                         <h3 className="mb-4 text-lg font-semibold">Product</h3>
