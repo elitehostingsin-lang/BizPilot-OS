@@ -9,11 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
-// import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { Alert, AlertDescription, AlertTitle } from "../../components/ui/alert";
-
-const isSupabaseConfigured = true;
-const supabase = { auth: { signInWithPassword: async () => ({ error: null }) } } as any;
 
 export default function LoginPage() {
     const router = useRouter();
