@@ -25,11 +25,15 @@ export default function SignupPage() {
         setMounted(true);
     }, []);
 
-    const supabase = createClient();
-
     if (!mounted) {
-        return <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-4">Loading...</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-4 font-mono text-zinc-500">
+                Securing connection...
+            </div>
+        );
     }
+
+    const supabase = createClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -77,12 +81,12 @@ export default function SignupPage() {
                                 <img
                                     src="/logo.png"
                                     alt="BizPilot OS"
-                                    style={{ height: '80px', width: 'auto' }}
+                                    style={{ height: '70px', width: 'auto' }}
                                 />
                             </div>
-                            <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
-                            <CardDescription className="text-center">
-                                Enter your email below to create your account
+                            <CardTitle className="text-2xl font-bold text-center">Create account</CardTitle>
+                            <CardDescription className="text-center text-zinc-500">
+                                Get started with the business OS
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
