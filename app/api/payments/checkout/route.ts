@@ -58,8 +58,8 @@ export async function POST(req: NextRequest) {
 
         console.log("Sending Payload to Dodo:", JSON.stringify(payload, null, 2));
 
-        // Manual fetch
-        const response = await fetch('https://live.dodopayments.com/payments/create', {
+        // Use the standard API endpoint
+        const response = await fetch('https://test.dodopayments.com/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
