@@ -295,7 +295,7 @@ export default function LandingPage() {
                   <span className="text-6xl font-black tracking-tighter">$10</span>
                   <span className="text-gray-400 font-medium">/month</span>
                 </div>
-                <p className="text-gray-500 text-lg">Includes 30-day full access evaluation. <strong>Invoices stay free forever.</strong></p>
+                <p className="text-gray-500 text-lg">Includes 30-day evaluation of all tools. <strong>CRM, Dashboard, and Profile stay free forever.</strong></p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 text-left">

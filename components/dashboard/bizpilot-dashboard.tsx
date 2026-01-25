@@ -3452,7 +3452,7 @@ const BizPilotDashboard = () => {
     );
 
     const renderContent = () => {
-        if (isExpired && !isPaid && activeView !== 'billing' && activeView !== 'support' && activeView !== 'invoices' && activeView !== 'dashboard') {
+        if (isExpired && !isPaid && activeView !== 'billing' && activeView !== 'support' && activeView !== 'dashboard' && activeView !== 'leads' && activeView !== 'settings') {
             return (
                 <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
                     <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
@@ -3461,8 +3461,9 @@ const BizPilotDashboard = () => {
                     <div className="space-y-2">
                         <h2 className="text-3xl font-bold">Feature Locked</h2>
                         <p className="text-muted-foreground max-w-md mx-auto">
-                            Your 30-day evaluation has ended. Upgrade to the Paid plan to unlock CRM, Tasks, and all pro tools. Your Invoices remain free forever.
+                            Your 30-day evaluation has ended. Upgrade to the Paid plan to unlock Invoices, Tasks, Content Builder, and all professional tools.
                         </p>
+                        <p className="text-sm font-medium text-primary">Your Dashboard, CRM, and Profile remain free for lifetime use.</p>
                     </div>
                     <Button onClick={() => setActiveView('billing')} size="lg" className="rounded-xl px-8">
                         Upgrade for Full Access
