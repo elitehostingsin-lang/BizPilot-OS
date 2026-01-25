@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         console.log("Sending Payload to Dodo:", JSON.stringify(payload, null, 2));
 
         // Try LIVE endpoint first (Key format suggests live/production)
-        const response = await fetch('https://live.dodopayments.com/payments/create', {
+        const response = await fetch('https://live.dodopayments.com/payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
