@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
     LayoutDashboard, FileText, Receipt, Users, CheckSquare, FileCheck, DollarSign, ClipboardList, Globe, Code, Lock,
@@ -3273,13 +3273,10 @@ const BizPilotDashboard = () => {
                 <aside className="w-64 min-h-screen bg-white border-r border-border/40 fixed left-0 top-0 flex flex-col">
                     <div className="p-6 flex-1">
                         <div className="flex items-center gap-3 mb-8">
-                            <Image
+                            <img
                                 src="/logo.png"
                                 alt="BizPilot OS"
-                                width={240}
-                                height={72}
-                                priority
-                                className="h-16 w-auto"
+                                style={{ height: '64px', width: 'auto' }}
                             />
                         </div>
                         <nav className="space-y-1">
