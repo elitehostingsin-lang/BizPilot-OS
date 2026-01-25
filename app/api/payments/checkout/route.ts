@@ -21,35 +21,41 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
         }
 
-        const dodoSymbol = Symbol.for("dodo-client");
         const dodo = new DodoPayments({
             apiKey: process.env.DODO_PAYMENTS_API_KEY || "",
         } as any);
 
+        // Fixed: Removed product_cart field that was causing 422 error
         const payment = await (dodo.payments.create as any)({
-            billing: {
-                city: "Unknown",
-                country: "US",
-                state: "Unknown",
-                street: "Unknown",
-                zip_code: "00000"
-            },
             customer: {
                 email: email,
                 name: email.split('@')[0],
             },
-            product_id: process.env.DODO_PRODUCT_ID || "p_123",
-            quantity: 1,
+            payment: {
+                amount: 1000, // $10.00 in cents
+                currency: "USD",
+            },
+            product_id: process.env.DODO_PRODUCT_ID || "prod_default",
             return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
             metadata: {
                 userId: userId,
             }
         });
 
-        const checkoutUrl = (payment as any).checkout_url;
+        const checkoutUrl = (payment as any).checkout_url || (payment as any).url;
+
+        if (!checkoutUrl) {
+            console.error("No checkout URL in response:", payment);
+            return NextResponse.json({ error: "Failed to get checkout URL" }, { status: 500 });
+        }
+
         return NextResponse.json({ url: checkoutUrl });
     } catch (error: any) {
         console.error("Dodo Checkout Error:", error);
-        return NextResponse.json({ error: error.message || "Failed to create checkout session" }, { status: 500 });
+        console.error("Error details:", JSON.stringify(error, null, 2));
+        return NextResponse.json({
+            error: error.message || "Failed to create checkout session",
+            details: error.response?.data || "No additional details"
+        }, { status: 500 });
     }
 }
