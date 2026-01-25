@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { DodoPayments } from "dodopayments";
 import { createClient } from "@/lib/supabase";
 
+export const runtime = 'edge';
+
 const dodo = new DodoPayments({
     bearerToken: process.env.DODO_PAYMENTS_API_KEY || "",
 });

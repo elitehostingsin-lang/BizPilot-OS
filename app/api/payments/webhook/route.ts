@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "standardwebhooks";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
+export const runtime = 'edge';
+
 export async function POST(req: NextRequest) {
     const payload = await req.text();
     const headers = req.headers;

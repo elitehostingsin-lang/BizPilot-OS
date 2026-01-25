@@ -5,6 +5,8 @@ import { ChevronLeft, Calendar, User, Clock, Share2, Tag } from 'lucide-react';
 import { blogPosts } from '@/lib/blog-data';
 import { Metadata } from 'next';
 
+export const runtime = 'edge';
+
 interface Props {
     params: { slug: string };
 }
