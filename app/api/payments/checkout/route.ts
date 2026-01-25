@@ -26,16 +26,34 @@ export async function POST(req: NextRequest) {
             bearerToken: process.env.DODO_PAYMENTS_API_KEY || "",
         } as any);
 
-        // Minimal payment request - only required fields
+        const productId = process.env.DODO_PRODUCT_ID || "p_123";
+
+        // Construct the payment request with 'product_cart' as required by the error
         const paymentRequest = {
             customer: {
                 email: email,
+                name: email.split('@')[0],
             },
-            product_id: process.env.DODO_PRODUCT_ID || "",
+            billing: {
+                city: "New York",
+                country: "US",
+                state: "NY",
+                street: "123 Business Rd",
+                zip_code: "10001"
+            },
+            product_cart: [
+                {
+                    product_id: productId,
+                    quantity: 1
+                }
+            ],
             return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
+            metadata: {
+                userId: userId,
+            }
         };
 
-        console.log("Creating payment with request:", JSON.stringify(paymentRequest, null, 2));
+        console.log("Creating payment with detailed request:", JSON.stringify(paymentRequest, null, 2));
 
         const payment = await (dodo.payments.create as any)(paymentRequest);
 
@@ -44,8 +62,7 @@ export async function POST(req: NextRequest) {
         // Try multiple possible URL fields
         const checkoutUrl = (payment as any).checkout_url ||
             (payment as any).url ||
-            (payment as any).payment_url ||
-            (payment as any).hosted_url;
+            (payment as any).payment_url;
 
         if (!checkoutUrl) {
             console.error("No checkout URL found in payment response:", payment);
@@ -59,7 +76,6 @@ export async function POST(req: NextRequest) {
     } catch (error: any) {
         console.error("Dodo Checkout Error:", error);
         console.error("Error message:", error.message);
-        console.error("Error response:", error.response?.data);
 
         return NextResponse.json({
             error: error.message || "Failed to create checkout session",
