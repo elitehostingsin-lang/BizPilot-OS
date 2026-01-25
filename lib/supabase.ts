@@ -5,8 +5,12 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 export const isSupabaseConfigured = true
 
-export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey)
-
+// Create client function to be more resilient
 export function createClient() {
-    return supabase;
+    return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
+
+// Export a getter for the singleton
+export const supabase = typeof window !== 'undefined'
+    ? createBrowserClient(supabaseUrl, supabaseAnonKey)
+    : null as any;
