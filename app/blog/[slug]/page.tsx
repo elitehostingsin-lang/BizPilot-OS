@@ -15,16 +15,36 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const post = blogPosts.find((p) => p.slug === params.slug);
     if (!post) return { title: 'Post Not Found' };
 
+    const canonicalUrl = `https://bizpilotos.pages.dev/blog/${post.slug}`;
+
     return {
         title: post.title,
         description: post.excerpt,
         keywords: post.keywords,
+        alternates: {
+            canonical: canonicalUrl,
+        },
         openGraph: {
             title: post.title,
             description: post.excerpt,
             type: 'article',
             publishedTime: post.date,
             authors: [post.author],
+            url: canonicalUrl,
+            images: [
+                {
+                    url: post.image,
+                    width: 1200,
+                    height: 630,
+                    alt: post.title,
+                }
+            ],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: post.title,
+            description: post.excerpt,
+            images: [post.image],
         },
     };
 }
@@ -36,8 +56,38 @@ export default function BlogPostPage({ params }: Props) {
         notFound();
     }
 
+    // JSON-LD Structured Data for SEO
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: post.title,
+        description: post.excerpt,
+        image: `https://bizpilotos.pages.dev${post.image}`,
+        datePublished: post.date,
+        author: {
+            '@type': 'Organization',
+            name: post.author,
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: 'BizPilot OS',
+            logo: {
+                '@type': 'ImageObject',
+                url: 'https://bizpilotos.pages.dev/logo.png',
+            },
+        },
+        keywords: post.keywords.join(', '),
+        articleSection: post.category,
+    };
+
     return (
         <div className="min-h-screen bg-white">
+            {/* JSON-LD Structured Data */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+
             <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/blog" className="flex items-center gap-2 group">

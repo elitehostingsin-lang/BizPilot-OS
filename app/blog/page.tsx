@@ -2,6 +2,22 @@ import React from 'react';
 import Link from 'next/link';
 import { ChevronLeft, Calendar, User, Tag } from 'lucide-react';
 import { blogPosts } from '@/lib/blog-data';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Business Insights Blog - BizPilot OS',
+    description: 'Strategies on efficiency, business architecture, and why unified operations always beat fragmented tools. Expert insights for serious business owners.',
+    keywords: ['business blog', 'SaaS insights', 'business efficiency', 'workflow optimization', 'business operating system'],
+    alternates: {
+        canonical: 'https://bizpilotos.pages.dev/blog',
+    },
+    openGraph: {
+        title: 'Business Insights Blog - BizPilot OS',
+        description: 'Expert strategies for building efficient, scalable businesses.',
+        type: 'website',
+        url: 'https://bizpilotos.pages.dev/blog',
+    },
+};
 
 export default function BlogPage() {
     return (
