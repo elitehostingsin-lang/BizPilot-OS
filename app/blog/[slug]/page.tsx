@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, Calendar, User, Clock, Share2 } from 'lucide-react';
+import { ChevronLeft, Calendar, User, Clock, Share2, Tag } from 'lucide-react';
 import { blogPosts } from '@/lib/blog-data';
 import { Metadata } from 'next';
 
