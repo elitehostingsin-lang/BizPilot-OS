@@ -53,6 +53,13 @@ export default function BlogPostPage({ params }: Props) {
             <main className="pt-32 pb-20 px-6">
                 <article className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
                     <div className="mb-12 space-y-6 text-center">
+                        <div className="relative w-full aspect-video rounded-[2.5rem] overflow-hidden mb-12 shadow-2xl border border-gray-100">
+                            <img
+                                src={post.image.replace('C:/Users/unnati/Desktop/Biz Pilot/bizpilot-os/public', '')}
+                                alt={post.title}
+                                className="object-cover w-full h-full"
+                            />
+                        </div>
                         <div className="inline-flex items-center gap-3 px-3 py-1 bg-zinc-100 rounded-full text-[10px] font-bold uppercase tracking-widest">
                             <Tag className="w-3 h-3" /> {post.category}
                         </div>

@@ -59,6 +59,7 @@ const BizPilotDashboard = () => {
     const [activeView, setActiveView] = useState('dashboard');
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+    const [isActivatingTrial, setIsActivatingTrial] = useState(false);
     const router = useRouter();
 
     // Persistence and State
@@ -960,6 +961,33 @@ const BizPilotDashboard = () => {
         }
     };
 
+    const handleActivateTrial = async () => {
+        setIsActivatingTrial(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Not authenticated");
+
+            const response = await fetch('/api/payments/activate-trial', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert("30-Day Free Trial Activated!");
+                setUserProfile({ ...userProfile, joinDate: data.joinDate, plan: 'Founder\'s Beta' });
+            } else {
+                throw new Error(data.error || "Failed to activate trial");
+            }
+        } catch (err: any) {
+            console.error("Trial Error:", err);
+            alert(err.message || "Failed to activate trial. Please try again.");
+        } finally {
+            setIsActivatingTrial(false);
+        }
+    };
+
     const renderBilling = () => {
         const joinDate = new Date(userProfile.joinDate || 'January 2024');
         const trialEndDate = new Date(joinDate);
@@ -1019,26 +1047,42 @@ const BizPilotDashboard = () => {
                                     <div className="relative z-10 space-y-4">
                                         <h4 className="text-2xl font-bold tracking-tight">Ready to lock in your Pro access?</h4>
                                         <p className="text-zinc-400 text-sm max-w-md">
-                                            Upgrade now to ensure zero interruptions. Pro members get unlimited leads, advanced finance tracking, and priority support.
+                                            {isExpired
+                                                ? "Your trial has ended. Upgrade now to restore unlimited access and keep your momentum going."
+                                                : "Upgrade now to ensure zero interruptions. Pro members get unlimited leads, advanced finance tracking, and priority support."
+                                            }
                                         </p>
                                         <div className="flex items-baseline gap-2">
                                             <span className="text-4xl font-black">$10</span>
                                             <span className="text-zinc-500 text-sm">/ month</span>
                                         </div>
-                                        <Button
-                                            onClick={handleDodoCheckout}
-                                            disabled={isSubmittingPayment}
-                                            className="bg-white text-black hover:bg-zinc-200 rounded-xl px-8 h-12 text-base font-bold transition-all active:scale-95"
-                                        >
-                                            {isSubmittingPayment ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Securing Connection...
-                                                </>
-                                            ) : (
-                                                'Upgrade to Pro Now'
+                                        <div className="flex flex-wrap gap-4">
+                                            <Button
+                                                onClick={handleDodoCheckout}
+                                                disabled={isSubmittingPayment}
+                                                className="bg-white text-black hover:bg-zinc-200 rounded-xl px-8 h-12 text-base font-bold transition-all active:scale-95"
+                                            >
+                                                {isSubmittingPayment ? (
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Securing Connection...
+                                                    </>
+                                                ) : (
+                                                    'Upgrade to Pro Now'
+                                                )}
+                                            </Button>
+
+                                            {(userProfile.joinDate === 'January 2024' || !userProfile.joinDate) && (
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={handleActivateTrial}
+                                                    disabled={isActivatingTrial}
+                                                    className="bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 rounded-xl px-8 h-12 text-base font-bold transition-all"
+                                                >
+                                                    {isActivatingTrial ? 'Activating...' : 'Start 30-Day Free Trial'}
+                                                </Button>
                                             )}
-                                        </Button>
+                                        </div>
                                     </div>
                                     <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] -translate-y-1/2 translate-x-1/2" />
                                 </div>
