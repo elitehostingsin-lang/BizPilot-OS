@@ -993,7 +993,7 @@ const BizPilotDashboard = () => {
                         <CardHeader className="pb-4">
                             <CardTitle className="text-xl">Subscription Status</CardTitle>
                             <CardDescription>
-                                {isPro ? 'Thank you for being a Pro member!' : "You're currently on the Founder's Beta Pass"}
+                                {isPro ? 'Thank you for being a Pro member!' : "You&apos;re currently on the Founder&apos;s Beta Pass"}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -1001,7 +1001,7 @@ const BizPilotDashboard = () => {
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Current Plan</p>
                                     <h4 className="text-2xl font-bold text-primary">
-                                        {isPro ? 'Pro Operating System' : "Founder's Beta (Free)"}
+                                        {isPro ? 'Pro Operating System' : "Founder&apos;s Beta (Free)"}
                                     </h4>
                                 </div>
                                 <div className="text-right">
@@ -3420,7 +3420,7 @@ const BizPilotDashboard = () => {
                     <div className="space-y-2">
                         <h2 className="text-3xl font-bold">Subscription Expired</h2>
                         <p className="text-muted-foreground max-w-md mx-auto">
-                            Your Founder's Beta Pass has ended. Please upgrade to the Pro Plan to continue using BizPilot OS.
+                            Your Founder&apos;s Beta Pass has ended. Please upgrade to the Pro Plan to continue using BizPilot OS.
                         </p>
                     </div>
                     <Button onClick={() => setActiveView('billing')} size="lg" className="rounded-xl px-8">

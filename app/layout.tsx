@@ -13,8 +13,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BizPilot OS - The Serious Business Operating System",
-  description: "Advanced business management suite for content, invoices, CRM, and more.",
+  title: {
+    default: "BizPilot OS - The All-In-One Business Operating System",
+    template: "%s | BizPilot OS"
+  },
+  description: "Advanced business management suite for CRM, automated invoicing, task workflows, and website audits. All tools in one unified dashboard.",
+  keywords: ["business operating system", "all-in-one business tool", "SaaS CRM", "automated invoicing", "task management for small business", "website audit tool"],
+  authors: [{ name: "BizPilot" }],
+  creator: "BizPilot Team",
+  publisher: "BizPilot OS",
+  robots: "index, follow",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://bizpilot-os.com",
+    siteName: "BizPilot OS",
+    title: "BizPilot OS - The All-In-One Business Operating System",
+    description: "Streamline your entire business with BizPilot OS. CRM, Invoicing, Tasks, and more in one secure dashboard.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "BizPilot OS Dashboard" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BizPilot OS - The All-In-One Business Operating System",
+    description: "Advanced business management suite for CRM, invoicing, and more.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

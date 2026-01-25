@@ -160,8 +160,8 @@ export default function LandingPage() {
       <section id="features" className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
-            <h2 className="text-4xl font-bold mb-4 tracking-tight">Everything You Need</h2>
-            <p className="text-xl text-gray-600">10 powerful tools • 100% Free Trial</p>
+            <h2 className="text-4xl font-bold mb-4 tracking-tight">The Ultimate All-in-One Business Management Tool</h2>
+            <p className="text-xl text-gray-600 italic">Replace 10+ disjointed apps with one unified dashboard.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -273,8 +273,8 @@ export default function LandingPage() {
       <section id="pricing" className="py-24 px-6 bg-gray-50 text-center">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 tracking-tight">100% Free Access</h2>
-            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">All features. All tools. Completely free trial.</p>
+            <h2 className="text-4xl font-bold mb-4 tracking-tight">Smart CRM & CRM for Small Businesses</h2>
+            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">Manage leads, invoices, and growth without the complexity of traditional enterprise software.</p>
           </div>
 
           <div className="max-w-3xl mx-auto">
@@ -290,7 +290,7 @@ export default function LandingPage() {
                 <div className="inline-flex items-center gap-2 px-6 py-2 bg-black text-white rounded-full font-bold text-xs uppercase tracking-widest">
                   Limited Time Offer
                 </div>
-                <h3 className="text-3xl font-bold">Founder's Beta Pass</h3>
+                <h3 className="text-3xl font-bold">Founder&apos;s Beta Pass</h3>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-6xl font-black tracking-tighter">$0</span>
                   <span className="text-gray-400 font-medium">/first month</span>
@@ -411,21 +411,21 @@ export default function LandingPage() {
             <div>
               <h4 className="font-bold text-lg mb-8 uppercase tracking-widest text-xs opacity-50">Support</h4>
               <ul className="space-y-5 text-gray-400 font-medium">
-                <li><Link href="/support" className="hover:text-white transition-colors">Email Support</Link></li>
-                <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Business Insights Blog</Link></li>
+                <li><Link href="/support" className="hover:text-white transition-colors">Help & Support</Link></li>
                 <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="flex flex-col md:row items-center justify-between gap-6">
+          <div className="flex flex-col md:row items-center justify-between gap-6 border-t border-zinc-900/50 pt-12">
             <p className="text-gray-500 text-sm font-medium">
-              © 2024 BizPilot OS. All rights reserved. Built for creators.
+              © 2026 BizPilot OS. The Ultimate Business Operating System. Built for Precision.
             </p>
             <div className="flex gap-10 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
               <span className="text-xs font-black tracking-widest uppercase">Verified Secure</span>
-              <span className="text-xs font-black tracking-widest uppercase">Global Cloud</span>
+              <span className="text-xs font-black tracking-widest uppercase">PCI-DSS Compliant</span>
             </div>
           </div>
         </div>
