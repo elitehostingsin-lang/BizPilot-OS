@@ -1,8 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Calendar, User, Tag } from 'lucide-react';
+import { ChevronLeft, Calendar, User, Tag, ArrowRight } from 'lucide-react';
 import { blogPosts } from '@/lib/blog-data';
 import { Metadata } from 'next';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
     title: 'Business Insights Blog - BizPilot OS',
@@ -47,35 +48,61 @@ export default function BlogPage() {
                         {blogPosts.map((post, index) => (
                             <article
                                 key={post.slug}
-                                className="group relative border-b border-gray-100 pb-12 animate-in fade-in slide-in-from-bottom-8 duration-700"
+                                className="group relative border-b border-gray-100 pb-12 last:border-0 animate-in fade-in slide-in-from-bottom-8 duration-700 hover:scale-[1.01] transition-transform"
                                 style={{ animationDelay: `${index * 150}ms` }}
                             >
-                                <div className="flex flex-col md:flex-row md:items-start gap-8">
-                                    <div className="flex-1 space-y-4">
-                                        <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400">
-                                            <span className="px-2 py-1 bg-gray-50 rounded text-black">{post.category}</span>
-                                            <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {post.date}</span>
+                                <Link href={`/blog/${post.slug}`} className="block">
+                                    <div className="flex flex-col md:flex-row md:items-start gap-8">
+                                        {/* Featured Image */}
+                                        <div className="md:w-1/3 relative aspect-video rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow">
+                                            <img
+                                                src={post.image}
+                                                alt={post.title}
+                                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                                            />
                                         </div>
-                                        <h2 className="text-3xl font-bold tracking-tight group-hover:text-primary transition-colors leading-snug">
-                                            <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                                        </h2>
-                                        <p className="text-gray-600 text-lg leading-relaxed">{post.excerpt}</p>
-                                        <div className="pt-4 flex items-center justify-between">
-                                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                                                <div className="w-8 h-8 rounded-full bg-zinc-100 flex items-center justify-center font-bold text-xs text-black">BP</div>
-                                                <span>{post.author}</span>
+
+                                        {/* Content */}
+                                        <div className="flex-1 space-y-4">
+                                            <div className="flex items-center gap-4 text-xs font-bold uppercase tracking-widest text-gray-400">
+                                                <span className="px-3 py-1.5 bg-black text-white rounded-full">{post.category}</span>
+                                                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {post.date}</span>
                                             </div>
-                                            <Link
-                                                href={`/blog/${post.slug}`}
-                                                className="inline-flex items-center text-sm font-bold uppercase tracking-widest hover:gap-2 transition-all"
-                                            >
-                                                Read Entry <ChevronLeft className="h-4 w-4 rotate-180" />
-                                            </Link>
+                                            <h2 className="text-3xl md:text-4xl font-bold tracking-tight group-hover:text-primary transition-colors leading-tight">
+                                                {post.title}
+                                            </h2>
+                                            <p className="text-gray-600 text-lg leading-relaxed line-clamp-2">{post.excerpt}</p>
+                                            <div className="pt-4 flex items-center justify-between">
+                                                <div className="flex items-center gap-3 text-sm text-gray-500">
+                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center font-bold text-xs text-white shadow-md">BP</div>
+                                                    <div>
+                                                        <p className="font-semibold text-black">{post.author}</p>
+                                                        <p className="text-xs text-gray-400">5 min read</p>
+                                                    </div>
+                                                </div>
+                                                <div className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-black group-hover:gap-3 transition-all">
+                                                    Read Article <ArrowRight className="h-4 w-4" />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </Link>
                             </article>
                         ))}
+                    </div>
+
+                    {/* CTA Section */}
+                    <div className="mt-20 p-12 bg-gradient-to-br from-black to-zinc-800 rounded-[2.5rem] text-center text-white shadow-2xl">
+                        <h3 className="text-3xl font-bold mb-4">Ready to Transform Your Business?</h3>
+                        <p className="text-zinc-300 mb-8 max-w-2xl mx-auto">
+                            Join 1,000+ entrepreneurs using BizPilot OS to streamline operations and scale efficiently.
+                        </p>
+                        <Link
+                            href="/signup"
+                            className="inline-flex items-center gap-2 bg-white text-black px-8 py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+                        >
+                            Start Free Trial <ArrowRight className="h-4 w-4" />
+                        </Link>
                     </div>
                 </div>
             </main>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronLeft, Calendar, User, Clock, Share2, Tag } from 'lucide-react';
+import { ChevronLeft, Calendar, User, Clock, Share2, Tag, ArrowRight } from 'lucide-react';
 import { blogPosts } from '@/lib/blog-data';
 import { Metadata } from 'next';
 
@@ -80,6 +80,9 @@ export default function BlogPostPage({ params }: Props) {
         articleSection: post.category,
     };
 
+    // Get related posts (exclude current)
+    const relatedPosts = blogPosts.filter(p => p.slug !== post.slug).slice(0, 2);
+
     return (
         <div className="min-h-screen bg-white">
             {/* JSON-LD Structured Data */}
@@ -105,12 +108,12 @@ export default function BlogPostPage({ params }: Props) {
                     <div className="mb-12 space-y-6 text-center">
                         <div className="relative w-full aspect-video rounded-[2.5rem] overflow-hidden mb-12 shadow-2xl border border-gray-100">
                             <img
-                                src={post.image.replace('C:/Users/unnati/Desktop/Biz Pilot/bizpilot-os/public', '')}
+                                src={post.image}
                                 alt={post.title}
                                 className="object-cover w-full h-full"
                             />
                         </div>
-                        <div className="inline-flex items-center gap-3 px-3 py-1 bg-zinc-100 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-black text-white rounded-full text-xs font-bold uppercase tracking-widest">
                             <Tag className="w-3 h-3" /> {post.category}
                         </div>
                         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
@@ -131,52 +134,71 @@ export default function BlogPostPage({ params }: Props) {
 
                     <div className="prose prose-zinc prose-lg max-w-none 
                         prose-headings:font-bold prose-headings:tracking-tight
-                        prose-p:text-gray-600 prose-p:leading-relaxed
+                        prose-p:text-gray-600 prose-p:leading-relaxed prose-p:text-lg
                         prose-strong:text-black prose-strong:font-bold
                         prose-li:text-gray-600
+                        prose-h1:text-4xl prose-h1:mt-12 prose-h1:mb-6
+                        prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-4
+                        prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-3
                     ">
-                        {/* We're simulating markdown parsing for simplicity or can use a library */}
                         {post.content.split('\n').map((line, i) => {
-                            if (line.startsWith('# ')) return <h1 key={i} className="text-3xl font-bold mt-12 mb-6">{line.replace('# ', '')}</h1>;
-                            if (line.startsWith('## ')) return <h2 key={i} className="text-2xl font-bold mt-10 mb-4">{line.replace('## ', '')}</h2>;
+                            if (line.startsWith('# ')) return <h1 key={i}>{line.replace('# ', '')}</h1>;
+                            if (line.startsWith('## ')) return <h2 key={i}>{line.replace('## ', '')}</h2>;
+                            if (line.startsWith('### ')) return <h3 key={i}>{line.replace('### ', '')}</h3>;
+                            if (line.trim().startsWith('1.') || line.trim().startsWith('2.') || line.trim().startsWith('3.')) {
+                                return <li key={i} className="ml-6">{line.replace(/^\d+\.\s*/, '')}</li>;
+                            }
                             if (line.trim() === '') return <br key={i} />;
-                            return <p key={i} className="mb-4">{line}</p>;
+                            return <p key={i}>{line}</p>;
                         })}
                     </div>
 
-                    <div className="mt-20 pt-10 border-t border-gray-100 flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <p className="text-sm font-bold uppercase tracking-widest text-gray-400">Share this insight</p>
-                            <div className="flex gap-2">
-                                <button className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center hover:bg-zinc-100 transition-colors"><LinkIcon className="w-4 h-4" /></button>
-                                <button className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center hover:bg-zinc-100 transition-colors"><Twitter className="w-4 h-4" /></button>
+                    <div className="mt-20 pt-10 border-t border-gray-100 space-y-8">
+                        {/* Share Section */}
+                        <div className="flex items-center justify-between flex-wrap gap-4">
+                            <div className="flex items-center gap-4">
+                                <p className="text-sm font-bold uppercase tracking-widest text-gray-400">Share this insight</p>
+                                <div className="flex gap-2">
+                                    <button className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center hover:bg-zinc-100 transition-colors"><Share2 className="w-4 h-4" /></button>
+                                </div>
                             </div>
+                            <Link
+                                href="/signup"
+                                className="bg-black text-white px-8 py-3 rounded-full font-bold text-sm tracking-widest uppercase hover:scale-105 transition-all inline-flex items-center gap-2"
+                            >
+                                Start Free Trial <ArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
-                        <Link
-                            href="/signup"
-                            className="bg-black text-white px-8 py-3 rounded-full font-bold text-sm tracking-widest uppercase hover:scale-105 transition-all"
-                        >
-                            Start Free Trial
-                        </Link>
+
+                        {/* Related Posts */}
+                        {relatedPosts.length > 0 && (
+                            <div className="mt-16 pt-16 border-t border-gray-100">
+                                <h3 className="text-2xl font-bold mb-8">Continue Reading</h3>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    {relatedPosts.map((relatedPost) => (
+                                        <Link
+                                            key={relatedPost.slug}
+                                            href={`/blog/${relatedPost.slug}`}
+                                            className="group block p-6 border border-gray-100 rounded-2xl hover:shadow-xl transition-all hover:scale-[1.02]"
+                                        >
+                                            <div className="aspect-video rounded-xl overflow-hidden mb-4">
+                                                <img
+                                                    src={relatedPost.image}
+                                                    alt={relatedPost.title}
+                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                />
+                                            </div>
+                                            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">{relatedPost.category}</span>
+                                            <h4 className="text-xl font-bold mt-2 mb-2 group-hover:text-primary transition-colors">{relatedPost.title}</h4>
+                                            <p className="text-gray-600 text-sm line-clamp-2">{relatedPost.excerpt}</p>
+                                        </Link>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </article>
             </main>
         </div>
     );
 }
-
-// Minimal icons to avoid missing imports in the blog post page
-const LinkIcon = ({ className }: { className?: string }) => (
-    <Share2 className={className} />
-);
-
-const Twitter = ({ className }: { className?: string }) => (
-    <svg
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-        className={className}
-        fill="currentColor"
-    >
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
-    </svg>
-);
