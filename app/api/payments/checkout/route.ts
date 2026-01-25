@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 
         console.log("Sending Payload to Dodo:", JSON.stringify(payload, null, 2));
 
-        // Use the standard API endpoint
+        // Use the standard test endpoint
         const response = await fetch('https://test.dodopayments.com/payments', {
             method: 'POST',
             headers: {
@@ -68,12 +68,14 @@ export async function POST(req: NextRequest) {
             body: JSON.stringify(payload)
         });
 
-        // READ TEXT FIRST (Handling "Unexpected end of JSON input")
-        const responseText = await response.text();
-        console.log("Raw Dodo Response:", responseText);
+        console.log(`Dodo API Status: ${response.status} ${response.statusText}`);
 
-        if (!responseText) {
-            throw new Error("Empty response from Dodo Payments API");
+        // READ TEXT
+        const responseText = await response.text();
+        console.log("Raw Dodo Response Body:", responseText || "(Empty String)");
+
+        if (!responseText && !response.ok) {
+            throw new Error(`Dodo API Failed with Status ${response.status} (${response.statusText}) and empty body.`);
         }
 
         let data;
