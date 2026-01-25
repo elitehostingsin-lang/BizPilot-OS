@@ -10,7 +10,7 @@ export function createClient() {
     return createBrowserClient(supabaseUrl, supabaseAnonKey)
 }
 
-// Export a getter for the singleton
+// Global instance that is safe for SSR
 export const supabase = typeof window !== 'undefined'
     ? createBrowserClient(supabaseUrl, supabaseAnonKey)
-    : null as any;
+    : { auth: {}, from: () => ({}) } as any
