@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://bizpilotos.pages.dev"),
   title: {
     default: "BizPilot OS - The All-In-One Business Operating System",
     template: "%s | BizPilot OS"
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://bizpilot-os.com",
+    url: "https://bizpilotos.pages.dev",
     siteName: "BizPilot OS",
     title: "BizPilot OS - The All-In-One Business Operating System",
     description: "Streamline your entire business with BizPilot OS. CRM, Invoicing, Tasks, and more in one secure dashboard.",

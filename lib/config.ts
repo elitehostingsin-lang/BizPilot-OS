@@ -1,4 +1,5 @@
 export const CONFIG = {
+    PRODUCTION_URL: "https://bizpilotos.pages.dev",
     DODO_PUBLISHER_KEY: "pk_snd_091bba0fefcd4852a44cccdcf47602b5",
     PLANS: {
         FREE: "Free",

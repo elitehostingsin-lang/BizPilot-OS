@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://bizpilot-os.com'
+    const baseUrl = 'https://bizpilotos.pages.dev'
 
     return [
         {
