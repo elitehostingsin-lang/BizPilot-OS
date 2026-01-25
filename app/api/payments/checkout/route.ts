@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DodoPayments } from "dodopayments";
 import { createClient } from "@/lib/supabase-server";
 
 export const runtime = 'edge';
@@ -21,65 +20,62 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
         }
 
-        // Initialize Dodo Payments
-        const dodo = new DodoPayments({
-            bearerToken: process.env.DODO_PAYMENTS_API_KEY || "",
-        } as any);
-
+        const apiKey = process.env.DODO_PAYMENTS_API_KEY;
         const productId = process.env.DODO_PRODUCT_ID || "p_123";
 
-        // Construct the payment request with 'product_cart' as required by the error
-        const paymentRequest = {
-            customer: {
-                email: email,
-                name: email.split('@')[0],
+        // Manual fetch to control exact JSON structure
+        const response = await fetch('https://live.dodopayments.com/payments/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
             },
-            billing: {
-                city: "New York",
-                country: "US",
-                state: "NY",
-                street: "123 Business Rd",
-                zip_code: "10001"
-            },
-            product_cart: [
-                {
-                    product_id: productId,
-                    quantity: 1
+            body: JSON.stringify({
+                product_cart: [
+                    {
+                        product_id: productId,
+                        quantity: 1
+                    }
+                ],
+                billing: {
+                    city: "New York",
+                    country: "US",
+                    state: "NY",
+                    street: "123 Business Rd",
+                    zip_code: "10001"
+                },
+                customer: {
+                    email: email,
+                    name: email.split('@')[0]
+                },
+                return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
+                metadata: {
+                    userId: userId
                 }
-            ],
-            return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
-            metadata: {
-                userId: userId,
-            }
-        };
+            })
+        });
 
-        console.log("Creating payment with detailed request:", JSON.stringify(paymentRequest, null, 2));
+        const data = await response.json();
 
-        const payment = await (dodo.payments.create as any)(paymentRequest);
+        console.log("Dodo API Response:", JSON.stringify(data, null, 2));
 
-        console.log("Payment response:", JSON.stringify(payment, null, 2));
+        if (!response.ok) {
+            throw new Error(data.message || JSON.stringify(data));
+        }
 
-        // Try multiple possible URL fields
-        const checkoutUrl = (payment as any).checkout_url ||
-            (payment as any).url ||
-            (payment as any).payment_url;
+        // Handle various response formats
+        const checkoutUrl = data.checkout_url || data.url || data.payment_url;
 
         if (!checkoutUrl) {
-            console.error("No checkout URL found in payment response:", payment);
-            return NextResponse.json({
-                error: "Failed to get checkout URL",
-                response: payment
-            }, { status: 500 });
+            throw new Error("No checkout URL in response");
         }
 
         return NextResponse.json({ url: checkoutUrl });
+
     } catch (error: any) {
         console.error("Dodo Checkout Error:", error);
-        console.error("Error message:", error.message);
-
         return NextResponse.json({
-            error: error.message || "Failed to create checkout session",
-            details: error.response?.data || error.toString()
+            error: error.message || "Failed to create checkout session"
         }, { status: 500 });
     }
 }
