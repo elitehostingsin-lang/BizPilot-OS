@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         const joinDate = new Date().toISOString();
         const { error } = await supabaseAdmin.from('user_profiles').update({
             join_date: joinDate,
-            plan: 'Founder\'s Beta',
+            plan: 'Free',
             subscription_status: 'trialing'
         }).eq('user_id', userId);
 

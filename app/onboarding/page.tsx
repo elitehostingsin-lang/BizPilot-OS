@@ -50,7 +50,8 @@ export default function OnboardingPage() {
                         name: user.user_metadata.full_name || 'Business Owner',
                         email: user.email,
                         avatar: (user.user_metadata.full_name || 'Business Owner').split(' ').map((n: string) => n[0]).join(''),
-                        join_date: new Date().toISOString()
+                        join_date: new Date().toISOString(),
+                        plan: 'Free'
                     });
                 }
             }

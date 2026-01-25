@@ -42,7 +42,7 @@ interface Invoice { id: string; clientName: string; clientEmail?: string; amount
 interface FinanceEntry { id: string; type: 'income' | 'expense'; amount: number; category: string; date: string; description: string; month: string; year: string; }
 interface Note { id: string; title: string; content: string; tags: string[]; date: string; version: number; variations?: string[]; images?: string[]; status: 'Draft' | 'Final'; isSensitive?: boolean; isLocked?: boolean; }
 interface SupportTicket { id: string; subject: string; message: string; status: 'Open' | 'In Progress' | 'Resolved'; priority: 'Low' | 'Medium' | 'High'; date: string; }
-interface UserProfile { name: string; email: string; company: string; role: string; plan: string; joinDate: string; avatar: string; businessLogo?: string; address: string; taxId: string; website: string; employees: Employee[]; subscription_status?: string; last_payment_date?: string; }
+interface UserProfile { name: string; email: string; company: string; role: string; plan: 'Free' | 'Paid'; joinDate: string; avatar: string; businessLogo?: string; address: string; taxId: string; website: string; employees: Employee[]; subscription_status?: string; last_payment_date?: string; }
 interface UserSettings { currency: string; gstEnabled: boolean; dateFormat: string; invoicePrefix: string; autoReminder: boolean; taxRate: number; }
 interface Proposal { id: string; title: string; clientName: string; status: 'Draft' | 'Sent' | 'Approved'; introduction: string; scope: string; pricing: string; timeline: string; terms: string; date: string; version: number; }
 interface Form { id: string; title: string; questions: { id: string; text: string; type: string }[]; responses: { id: string; data: any; timestamp: string; clientId?: string }[]; }
@@ -77,7 +77,7 @@ const BizPilotDashboard = () => {
         email: 'user@example.com',
         company: 'Your Business',
         role: 'Founder',
-        plan: 'Pro Plan',
+        plan: 'Free',
         joinDate: 'January 2024',
         avatar: 'JD',
         address: '123 Business Way, City, State',
@@ -109,6 +109,18 @@ const BizPilotDashboard = () => {
     const profit = totalRevenue - totalExpenses;
     const profitMargin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
     const currencySymbol = currencies.find(c => c.code === userSettings.currency)?.symbol || '$';
+
+    const { isPaid, isExpired, diffDays } = useMemo(() => {
+        const isPaid = userProfile.plan === 'Paid' || userProfile.subscription_status === 'active';
+        const joinDate = new Date(userProfile.joinDate || 'January 2024');
+        const trialEndDate = new Date(joinDate);
+        trialEndDate.setMonth(trialEndDate.getMonth() + 1);
+        const today = new Date();
+        const diffTime = trialEndDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const isExpired = diffDays <= 0;
+        return { isPaid, isExpired, diffDays };
+    }, [userProfile]);
 
     // Load initial data from Supabase
     useEffect(() => {
@@ -976,7 +988,7 @@ const BizPilotDashboard = () => {
             const data = await response.json();
             if (data.success) {
                 alert("30-Day Free Trial Activated!");
-                setUserProfile({ ...userProfile, joinDate: data.joinDate, plan: 'Founder\'s Beta' });
+                setUserProfile({ ...userProfile, joinDate: data.joinDate, plan: 'Free' });
             } else {
                 throw new Error(data.error || "Failed to activate trial");
             }
@@ -989,16 +1001,6 @@ const BizPilotDashboard = () => {
     };
 
     const renderBilling = () => {
-        const joinDate = new Date(userProfile.joinDate || 'January 2024');
-        const trialEndDate = new Date(joinDate);
-        trialEndDate.setMonth(trialEndDate.getMonth() + 1);
-
-        const today = new Date();
-        const diffTime = trialEndDate.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        const isExpired = diffDays <= 0;
-        const isPro = userProfile.plan === 'Pro Plan' || userProfile.subscription_status === 'active';
-
         return (
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -1010,8 +1012,8 @@ const BizPilotDashboard = () => {
                         <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
                         <p className="text-muted-foreground mt-1">Manage your professional access</p>
                     </div>
-                    <Badge variant={isPro ? "default" : isExpired ? "destructive" : "outline"} className="px-4 py-1.5 rounded-full text-sm font-semibold">
-                        {isPro ? 'Pro Active' : isExpired ? 'Subscription Expired' : 'Trial Active'}
+                    <Badge variant={isPaid ? "default" : isExpired ? "destructive" : "outline"} className="px-4 py-1.5 rounded-full text-sm font-semibold">
+                        {isPaid ? 'Active Subscription' : isExpired ? 'Free Tier (Limited)' : 'Full Access Trial'}
                     </Badge>
                 </div>
 
@@ -1021,7 +1023,7 @@ const BizPilotDashboard = () => {
                         <CardHeader className="pb-4">
                             <CardTitle className="text-xl">Subscription Status</CardTitle>
                             <CardDescription>
-                                {isPro ? 'Thank you for being a Pro member!' : "You&apos;re currently on the Founder&apos;s Beta Pass"}
+                                {isPaid ? 'Thank you for your supporting BizPilot OS!' : "Enjoy full access during your 30-day evaluation"}
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -1029,27 +1031,27 @@ const BizPilotDashboard = () => {
                                 <div className="space-y-1">
                                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Current Plan</p>
                                     <h4 className="text-2xl font-bold text-primary">
-                                        {isPro ? 'Pro Operating System' : "Founder&apos;s Beta (Free)"}
+                                        {isPaid ? 'Professional (Paid)' : "Free Evaluation"}
                                     </h4>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                                        {isPro ? 'Next Billing' : 'Trial Remaining'}
+                                        {isPaid ? 'Next Billing' : 'Trial Remaining'}
                                     </p>
-                                    <h4 className={`text-2xl font-bold ${!isPro && isExpired ? 'text-destructive' : 'text-foreground'}`}>
-                                        {isPro ? 'Monthly Auto-renew' : isExpired ? '0 Days' : `${diffDays} Days`}
+                                    <h4 className={`text-2xl font-bold ${!isPaid && isExpired ? 'text-destructive' : 'text-foreground'}`}>
+                                        {isPaid ? 'Monthly Auto-renew' : isExpired ? '0 Days' : `${diffDays} Days`}
                                     </h4>
                                 </div>
                             </div>
 
-                            {!isPro && (
+                            {!isPaid && (
                                 <div className="space-y-6 p-8 rounded-[2rem] bg-zinc-950 text-white relative overflow-hidden">
                                     <div className="relative z-10 space-y-4">
-                                        <h4 className="text-2xl font-bold tracking-tight">Ready to lock in your Pro access?</h4>
+                                        <h4 className="text-2xl font-bold tracking-tight">Activate Professional Access</h4>
                                         <p className="text-zinc-400 text-sm max-w-md">
                                             {isExpired
-                                                ? "Your trial has ended. Upgrade now to restore unlimited access and keep your momentum going."
-                                                : "Upgrade now to ensure zero interruptions. Pro members get unlimited leads, advanced finance tracking, and priority support."
+                                                ? "Your free trial has ended. Upgrade to the Paid plan to unlock CRM, Tasks, Content Builder, and more. Your Invoices remain free forever."
+                                                : "Unlock unlimited leads, advanced finance tracking, and priority support with the professional tier."
                                             }
                                         </p>
                                         <div className="flex items-baseline gap-2">
@@ -1065,10 +1067,10 @@ const BizPilotDashboard = () => {
                                                 {isSubmittingPayment ? (
                                                     <>
                                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Securing Connection...
+                                                        Securing...
                                                     </>
                                                 ) : (
-                                                    'Upgrade to Pro Now'
+                                                    'Upgrade to Paid'
                                                 )}
                                             </Button>
 
@@ -1088,7 +1090,7 @@ const BizPilotDashboard = () => {
                                 </div>
                             )}
 
-                            {isPro && (
+                            {isPaid && (
                                 <div className="flex items-center gap-3 p-4 bg-green-50 text-green-700 rounded-xl border border-green-100">
                                     <Shield className="h-5 w-5" />
                                     <p className="text-sm font-medium">Your connection is secured and subscription is managed via Dodo Payments.</p>
@@ -3450,25 +3452,20 @@ const BizPilotDashboard = () => {
     );
 
     const renderContent = () => {
-        const joinDate = new Date(userProfile.joinDate || 'January 2024');
-        const trialEndDate = new Date(joinDate);
-        trialEndDate.setMonth(trialEndDate.getMonth() + 1);
-        const isExpired = trialEndDate.getTime() - new Date().getTime() <= 0;
-
-        if (isExpired && activeView !== 'billing' && activeView !== 'support') {
+        if (isExpired && !isPaid && activeView !== 'billing' && activeView !== 'support' && activeView !== 'invoices' && activeView !== 'dashboard') {
             return (
                 <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
                     <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
                         <Lock className="w-10 h-10 text-destructive" />
                     </div>
                     <div className="space-y-2">
-                        <h2 className="text-3xl font-bold">Subscription Expired</h2>
+                        <h2 className="text-3xl font-bold">Feature Locked</h2>
                         <p className="text-muted-foreground max-w-md mx-auto">
-                            Your Founder&apos;s Beta Pass has ended. Please upgrade to the Pro Plan to continue using BizPilot OS.
+                            Your 30-day evaluation has ended. Upgrade to the Paid plan to unlock CRM, Tasks, and all pro tools. Your Invoices remain free forever.
                         </p>
                     </div>
                     <Button onClick={() => setActiveView('billing')} size="lg" className="rounded-xl px-8">
-                        Go to Billing
+                        Upgrade for Full Access
                     </Button>
                 </div>
             );

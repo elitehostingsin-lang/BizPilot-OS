@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
                 nextMonth.setMonth(nextMonth.getMonth() + 1);
 
                 const { error: updateError } = await supabaseAdmin.from('user_profiles').update({
-                    plan: 'Pro Plan',
+                    plan: 'Paid',
                     subscription_status: 'active',
                     payment_status: 'paid',
                     last_payment_date: new Date().toISOString(),
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
                 console.log(`[Dodo Webhook] Processing cancellation for user: ${userId}`);
                 await supabaseAdmin.from('user_profiles').update({
                     subscription_status: 'canceled',
-                    plan: "Trial (Expired)"
+                    plan: 'Free'
                 }).eq('user_id', userId);
                 break;
         }

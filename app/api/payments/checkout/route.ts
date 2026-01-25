@@ -4,11 +4,11 @@ import { createClient } from "@/lib/supabase";
 
 export const runtime = 'edge';
 
-const dodo = new DodoPayments({
-    apiKey: process.env.DODO_PAYMENTS_API_KEY || "",
-} as any);
-
 export async function POST(req: NextRequest) {
+    const dodo = new DodoPayments({
+        apiKey: process.env.DODO_PAYMENTS_API_KEY || "",
+    } as any);
+
     try {
         const { email, userId } = await req.json();
 
