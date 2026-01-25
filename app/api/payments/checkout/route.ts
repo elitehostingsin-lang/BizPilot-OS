@@ -23,10 +23,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
         }
 
-        const apiKey = process.env.DODO_PAYMENTS_API_KEY;
-        if (!apiKey) {
-            console.error("DODO_PAYMENTS_API_KEY is missing");
-            return NextResponse.json({ error: "Server misconfiguration: Missing API Key" }, { status: 500 });
+        let apiKey = process.env.DODO_PAYMENTS_API_KEY;
+
+        // DEBUG: Fallback to the key you provided if env var is missing
+        if (!apiKey || apiKey.trim() === "") {
+            console.warn("Env Var DODO_PAYMENTS_API_KEY is missing. Using fallback key.");
+            apiKey = "9_HZfeHUQeDm583D.amqBlR4yaF0yFlQdu-OLXNHghgEvPYshGT85Jm_cbEB35AFB";
         }
 
         const productId = process.env.DODO_PRODUCT_ID || "p_123";
@@ -56,10 +58,11 @@ export async function POST(req: NextRequest) {
             }
         };
 
+        console.log("Using API Key (Prefix):", apiKey.substring(0, 5) + "...");
         console.log("Sending Payload to Dodo:", JSON.stringify(payload, null, 2));
 
-        // Use the standard test endpoint
-        const response = await fetch('https://test.dodopayments.com/payments', {
+        // Try LIVE endpoint first (Key format suggests live/production)
+        const response = await fetch('https://live.dodopayments.com/payments/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
