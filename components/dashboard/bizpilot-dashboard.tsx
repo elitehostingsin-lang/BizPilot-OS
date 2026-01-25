@@ -7,7 +7,7 @@ import {
     LayoutDashboard, FileText, Receipt, Users, CheckSquare, FileCheck, DollarSign, ClipboardList, Globe, Code, Lock,
     Plus, Copy, Download, MoreVertical, TrendingUp, AlertCircle, Check, X, Edit, Trash2, ChevronRight,
     LogOut, User, Settings, Bell, HelpCircle, MessageSquare, Mail, Shield, CreditCard, Calendar, Link as LinkIcon, Image as ImageIcon,
-    BookOpen, MessageCircle, Search, ArrowUpRight
+    BookOpen, MessageCircle, Search, ArrowUpRight, Loader2
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -153,8 +153,12 @@ const BizPilotDashboard = () => {
                 if (proposalsData) setProposals(proposalsData);
                 if (formsData) setForms(formsData);
                 if (profileData) {
-                    setUserProfile(profileData);
-                    setTempProfile(profileData);
+                    const mappedProfile = {
+                        ...profileData,
+                        joinDate: profileData.join_date || 'January 2024'
+                    };
+                    setUserProfile(mappedProfile);
+                    setTempProfile(mappedProfile);
                 }
                 if (settingsData) {
                     setUserSettings(settingsData);
@@ -922,8 +926,150 @@ const BizPilotDashboard = () => {
     ];
 
     const bottomNavItems = [
+        { id: 'billing', label: 'Subscription', icon: CreditCard },
         { id: 'support', label: 'Support', icon: HelpCircle },
     ];
+
+    const [transactionId, setTransactionId] = useState('');
+    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+
+    const renderBilling = () => {
+        const joinDate = new Date(userProfile.joinDate || 'January 2024');
+        const trialEndDate = new Date(joinDate);
+        trialEndDate.setMonth(trialEndDate.getMonth() + 1);
+
+        const today = new Date();
+        const diffTime = trialEndDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const isExpired = diffDays <= 0;
+
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+            >
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
+                        <p className="text-muted-foreground mt-1">Manage your plan and payments</p>
+                    </div>
+                    <Badge variant={isExpired ? "destructive" : "outline"} className="px-4 py-1.5 rounded-full text-sm font-semibold">
+                        {isExpired ? 'Subscription Expired' : 'Active Trial'}
+                    </Badge>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="md:col-span-2 border-0 shadow-xl bg-white overflow-hidden">
+                        <div className="h-2 w-full bg-primary" />
+                        <CardHeader className="pb-4">
+                            <CardTitle className="text-xl">Your Current Plan</CardTitle>
+                            <CardDescription>Founder's Beta Pass — $0 First Month</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
+                                <div className="space-y-1">
+                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Pricing Model</p>
+                                    <h4 className="text-2xl font-bold text-primary">$0 / first mo → $10 / mo</h4>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Time Remaining</p>
+                                    <h4 className={`text-2xl font-bold ${isExpired ? 'text-destructive' : 'text-foreground'}`}>
+                                        {isExpired ? '0 Days' : `${diffDays} Days`}
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h4 className="font-semibold text-lg flex items-center gap-2">
+                                    <Shield className="h-5 w-5 text-primary" />
+                                    How to Pay (UPI)
+                                </h4>
+                                <p className="text-sm text-muted-foreground">
+                                    We accept manual UPI payments to keep processing fees 0%. Scan the QR code below or use our UPI ID to pay <strong>$10 (approx ₹840)</strong> for your next month.
+                                </p>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center bg-zinc-50 p-8 rounded-[2rem] border border-dashed border-zinc-200">
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="bg-white p-4 rounded-3xl shadow-lg border border-zinc-100">
+                                            <img
+                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=elitehostingsin@gmail.com%26pn=BizPilot%20OS%26am=10.00%26cu=USD`}
+                                                alt="UPI QR Code"
+                                                className="w-40 h-40"
+                                            />
+                                        </div>
+                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center">Scan with any UPI App</p>
+                                    </div>
+                                    <div className="space-y-6 text-center sm:text-left">
+                                        <div>
+                                            <Label className="text-xs uppercase tracking-widest font-bold opacity-60">UPI ID</Label>
+                                            <div className="flex items-center justify-between gap-2 mt-1 p-3 bg-white border border-zinc-200 rounded-xl">
+                                                <span className="font-mono text-sm font-bold truncate">elitehostingsin@gmail.com</span>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg shrink-0" onClick={() => {
+                                                    navigator.clipboard.writeText('elitehostingsin@gmail.com');
+                                                    addActivity('security', 'UPI ID copied to clipboard');
+                                                }}>
+                                                    <Copy className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Label className="text-xs uppercase tracking-widest font-bold opacity-60">Expected Amount</Label>
+                                            <p className="text-2xl font-black text-foreground mt-1">$10.00</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border-0 shadow-xl bg-white overflow-hidden self-start">
+                        <div className="h-1 w-full bg-zinc-800" />
+                        <CardHeader>
+                            <CardTitle className="text-lg">Submit Proof</CardTitle>
+                            <CardDescription>Enter your transaction detail</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label>Transaction / Ref ID</Label>
+                                <Input
+                                    placeholder="Enter Trans ID or UPI Ref"
+                                    className="rounded-xl border-zinc-200"
+                                    value={transactionId}
+                                    onChange={(e) => setTransactionId(e.target.value)}
+                                />
+                            </div>
+                            <Button
+                                className="w-full rounded-xl bg-black hover:bg-zinc-800 h-11 transition-all"
+                                onClick={async () => {
+                                    if (!transactionId) return;
+                                    setIsSubmittingPayment(true);
+                                    await new Promise(r => setTimeout(r, 1500));
+                                    setIsSubmittingPayment(false);
+                                    setTransactionId('');
+                                    addActivity('payment', `Payment proof submitted: ${transactionId}`);
+                                    alert('Payment proof submitted successfully! Our team will verify and update your status within 24 hours.');
+                                }}
+                                disabled={isSubmittingPayment || !transactionId}
+                            >
+                                {isSubmittingPayment ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    'Submit for Verification'
+                                )}
+                            </Button>
+                            <p className="text-[10px] text-zinc-400 text-center uppercase tracking-widest leading-relaxed">
+                                Subscription will be extended <br /> upon verification.
+                            </p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </motion.div>
+        );
+    };
 
     const renderDashboard = () => (
         <motion.div
@@ -3249,6 +3395,30 @@ const BizPilotDashboard = () => {
     );
 
     const renderContent = () => {
+        const joinDate = new Date(userProfile.joinDate || 'January 2024');
+        const trialEndDate = new Date(joinDate);
+        trialEndDate.setMonth(trialEndDate.getMonth() + 1);
+        const isExpired = trialEndDate.getTime() - new Date().getTime() <= 0;
+
+        if (isExpired && activeView !== 'billing' && activeView !== 'support') {
+            return (
+                <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
+                    <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
+                        <Lock className="w-10 h-10 text-destructive" />
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-3xl font-bold">Subscription Expired</h2>
+                        <p className="text-muted-foreground max-w-md mx-auto">
+                            Your Founder's Beta Pass has ended. Please upgrade to the Pro Plan to continue using BizPilot OS.
+                        </p>
+                    </div>
+                    <Button onClick={() => setActiveView('billing')} size="lg" className="rounded-xl px-8">
+                        Go to Billing
+                    </Button>
+                </div>
+            );
+        }
+
         switch (activeView) {
             case 'dashboard': return renderDashboard();
             case 'content': return renderContentBuilder();
@@ -3263,6 +3433,7 @@ const BizPilotDashboard = () => {
             case 'vault': return renderVault();
             case 'profile': return renderProfile();
             case 'support': return renderSupport();
+            case 'billing': return renderBilling();
             default: return renderDashboard();
         }
     };

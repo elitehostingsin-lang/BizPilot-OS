@@ -290,12 +290,12 @@ export default function LandingPage() {
                 <div className="inline-flex items-center gap-2 px-6 py-2 bg-black text-white rounded-full font-bold text-xs uppercase tracking-widest">
                   Limited Time Offer
                 </div>
-                <h3 className="text-3xl font-bold">Free Forever Plan</h3>
+                <h3 className="text-3xl font-bold">Founder's Beta Pass</h3>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-6xl font-black tracking-tighter">$0</span>
-                  <span className="text-gray-400 font-medium">/forever</span>
+                  <span className="text-gray-400 font-medium">/first month</span>
                 </div>
-                <p className="text-gray-500 text-lg">Everything included. No hidden fees. No upgrades needed.</p>
+                <p className="text-gray-500 text-lg">Then just $10/month. No credit card required to start.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 text-left">
@@ -355,7 +355,7 @@ export default function LandingPage() {
               </button>
             </Link>
           </motion.div>
-          <p className="text-sm text-gray-400 font-medium">100% Free Forever • No Hidden Fees</p>
+          <p className="text-sm text-gray-400 font-medium">Try $0 First Month • No Credit Card Required</p>
         </div>
       </section>
 
