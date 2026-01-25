@@ -411,10 +411,10 @@ export default function LandingPage() {
             <div>
               <h4 className="font-bold text-lg mb-8 uppercase tracking-widest text-xs opacity-50">Latest Insights</h4>
               <ul className="space-y-5 text-gray-400 font-medium">
-                <li><Link href="/blog/why-businesses-struggle-with-too-many-tools" className="hover:text-white transition-colors">Solving Tool Fatigue</Link></li>
-                <li><Link href="/blog/what-is-a-business-operating-system" className="hover:text-white transition-colors">OS for Business</Link></li>
-                <li><Link href="/blog/simplicity-over-hype-product-building" className="hover:text-white transition-colors">Simplicity Wins</Link></li>
-                <li><Link href="/blog/the-power-of-unified-analytics" className="hover:text-white transition-colors">Unified Power</Link></li>
+                <li><Link href="/blog/why-businesses-struggle-with-too-many-tools" className="hover:text-white transition-colors block py-1">Solving Tool Fatigue</Link></li>
+                <li><Link href="/blog/what-is-a-business-operating-system" className="hover:text-white transition-colors block py-1">OS for Business</Link></li>
+                <li><Link href="/blog/simplicity-over-hype-product-building" className="hover:text-white transition-colors block py-1">Simplicity Wins</Link></li>
+                <li><Link href="/blog/the-power-of-unified-analytics" className="hover:text-white transition-colors block py-1">Unified Power</Link></li>
               </ul>
             </div>
 

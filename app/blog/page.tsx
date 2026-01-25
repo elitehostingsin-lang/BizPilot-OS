@@ -48,17 +48,18 @@ export default function BlogPage() {
                         {blogPosts.map((post, index) => (
                             <article
                                 key={post.slug}
-                                className="group relative border-b border-gray-100 pb-12 last:border-0 animate-in fade-in slide-in-from-bottom-8 duration-700 hover:scale-[1.01] transition-transform"
+                                className="group relative border-b border-gray-100 pb-12 last:border-0 animate-in fade-in slide-in-from-bottom-8 duration-700 hover:bg-gray-50/50 rounded-2xl transition-colors p-4 -mx-4"
                                 style={{ animationDelay: `${index * 150}ms` }}
                             >
                                 <Link href={`/blog/${post.slug}`} className="block">
                                     <div className="flex flex-col md:flex-row md:items-start gap-8">
                                         {/* Featured Image */}
-                                        <div className="md:w-1/3 relative aspect-video rounded-2xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-shadow">
-                                            <img
+                                        <div className="md:w-1/3 relative aspect-video rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+                                            <Image
                                                 src={post.image}
                                                 alt={post.title}
-                                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
                                             />
                                         </div>
 
@@ -80,9 +81,9 @@ export default function BlogPage() {
                                                         <p className="text-xs text-gray-400">5 min read</p>
                                                     </div>
                                                 </div>
-                                                <div className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-black group-hover:gap-3 transition-all">
+                                                <span className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-black group-hover:underline decoration-2 underline-offset-4 transition-all">
                                                     Read Article <ArrowRight className="h-4 w-4" />
-                                                </div>
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
