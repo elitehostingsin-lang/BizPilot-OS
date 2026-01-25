@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { Alert, AlertDescription } from "../../components/ui/alert";
+import { createClient } from "@/lib/supabase";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ResetPasswordPage() {
     const router = useRouter();
@@ -18,6 +17,21 @@ export default function ResetPasswordPage() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-4 font-mono text-zinc-500">
+                Securing connection...
+            </div>
+        );
+    }
+
+    const supabase = createClient();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,13 +73,10 @@ export default function ResetPasswordPage() {
             <Card className="w-full max-w-md border-zinc-200 dark:border-zinc-800 shadow-xl">
                 <CardHeader className="space-y-4">
                     <div className="flex justify-center">
-                        <Image
+                        <img
                             src="/logo.png"
                             alt="BizPilot OS"
-                            width={320}
-                            height={96}
-                            priority
-                            className="h-20 w-auto"
+                            style={{ height: '70px', width: 'auto' }}
                         />
                     </div>
                     <CardTitle className="text-2xl font-bold text-center">Set new password</CardTitle>

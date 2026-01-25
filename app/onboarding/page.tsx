@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,12 +16,27 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, CheckCircle2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase";
 
 export default function OnboardingPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-4 font-mono text-zinc-500">
+                Securing connection...
+            </div>
+        );
+    }
+
+    const supabase = createClient();
 
     const handleNext = async () => {
         if (step === 1) {
@@ -59,13 +73,10 @@ export default function OnboardingPage() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-zinc-50 dark:bg-zinc-900 p-4">
             <div className="flex justify-center mb-6">
-                <Image
+                <img
                     src="/logo.png"
                     alt="BizPilot OS"
-                    width={320}
-                    height={96}
-                    priority
-                    className="h-20 w-auto"
+                    style={{ height: '70px', width: 'auto' }}
                 />
             </div>
             <div className="w-full max-w-md mb-8 flex justify-between items-center px-2">
