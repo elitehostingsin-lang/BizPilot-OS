@@ -54,6 +54,20 @@ export default function PrivacyPage() {
                         <p className="text-gray-600 leading-relaxed">
                             You can access, update, or delete your account information at any time by logging into your account settings. You may also contact us for assistance with your data.
                         </p>
+                        <h2 className="text-2xl font-bold mt-10">7. Refund Policy</h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            Please note that BizPilot OS operates on a **No Refund** policy. We provide a comprehensive 30-day free trial to ensure our tools meet your needs before you commit to a paid plan.
+                        </p>
+
+                        <h2 className="text-2xl font-bold mt-10">8. Payment Information</h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            We do not store your credit card information on our servers. All payments are processed by **Dodo Payments**, our secure payment partner. Dodo Payments provides us with certain limited information to confirm your subscription status.
+                        </p>
+
+                        <h2 className="text-2xl font-bold mt-10">9. Data Transparency</h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            We are committed to transparency regarding how your data is handled. You can request a copy of your stored data or ask for its deletion at any time through your account settings or by contacting support.
+                        </p>
                     </section>
                 </div>
             </main>

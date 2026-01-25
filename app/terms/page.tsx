@@ -54,6 +54,20 @@ export default function TermsPage() {
                         <p className="text-gray-600 leading-relaxed">
                             These terms and conditions are governed by and construed in accordance with the laws and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.
                         </p>
+                        <h2 className="text-2xl font-bold mt-10 text-destructive">7. Cancellation & Refund Policy</h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            We offer a 30-day free trial (Founder's Beta Pass) to all new users to fully evaluate our services before any charges are applied. Due to the digital nature of our products and the availability of this evaluation period, **we do not offer refunds** once a paid subscription has been initiated. You may cancel your subscription at any time to prevent future charges, but previous payments are non-refundable.
+                        </p>
+
+                        <h2 className="text-2xl font-bold mt-10">8. Subscription Management</h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            Subscriptions are managed securely via **Dodo Payments**. You can view your status, billing history, and upcoming charges directly within your Dashboard. It is the user's responsibility to manage their subscription to avoid unwanted renewals.
+                        </p>
+
+                        <h2 className="text-2xl font-bold mt-10">9. System Security</h2>
+                        <p className="text-gray-600 leading-relaxed">
+                            BizPilot OS employs industry-standard encryption and security protocols to protect your business data. Our payment processing is fully PCI-compliant through our partnership with Dodo Payments.
+                        </p>
                     </section>
                 </div>
             </main>

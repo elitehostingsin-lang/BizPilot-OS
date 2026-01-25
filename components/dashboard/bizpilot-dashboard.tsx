@@ -42,7 +42,7 @@ interface Invoice { id: string; clientName: string; clientEmail?: string; amount
 interface FinanceEntry { id: string; type: 'income' | 'expense'; amount: number; category: string; date: string; description: string; month: string; year: string; }
 interface Note { id: string; title: string; content: string; tags: string[]; date: string; version: number; variations?: string[]; images?: string[]; status: 'Draft' | 'Final'; isSensitive?: boolean; isLocked?: boolean; }
 interface SupportTicket { id: string; subject: string; message: string; status: 'Open' | 'In Progress' | 'Resolved'; priority: 'Low' | 'Medium' | 'High'; date: string; }
-interface UserProfile { name: string; email: string; company: string; role: string; plan: string; joinDate: string; avatar: string; businessLogo?: string; address: string; taxId: string; website: string; employees: Employee[]; }
+interface UserProfile { name: string; email: string; company: string; role: string; plan: string; joinDate: string; avatar: string; businessLogo?: string; address: string; taxId: string; website: string; employees: Employee[]; subscription_status?: string; last_payment_date?: string; }
 interface UserSettings { currency: string; gstEnabled: boolean; dateFormat: string; invoicePrefix: string; autoReminder: boolean; taxRate: number; }
 interface Proposal { id: string; title: string; clientName: string; status: 'Draft' | 'Sent' | 'Approved'; introduction: string; scope: string; pricing: string; timeline: string; terms: string; date: string; version: number; }
 interface Form { id: string; title: string; questions: { id: string; text: string; type: string }[]; responses: { id: string; data: any; timestamp: string; clientId?: string }[]; }
@@ -58,6 +58,7 @@ const currencies = [
 const BizPilotDashboard = () => {
     const [activeView, setActiveView] = useState('dashboard');
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
     const router = useRouter();
 
     // Persistence and State
@@ -72,7 +73,7 @@ const BizPilotDashboard = () => {
     const [supportTickets, setSupportTickets] = useState<SupportTicket[]>([]);
     const [userProfile, setUserProfile] = useState<UserProfile>({
         name: 'Business Owner',
-        email: 'elitehostingsin@gmail.com',
+        email: 'user@example.com',
         company: 'Your Business',
         role: 'Founder',
         plan: 'Pro Plan',
@@ -930,8 +931,34 @@ const BizPilotDashboard = () => {
         { id: 'support', label: 'Support', icon: HelpCircle },
     ];
 
-    const [transactionId, setTransactionId] = useState('');
-    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+    const handleDodoCheckout = async () => {
+        setIsSubmittingPayment(true);
+        try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("Not authenticated");
+
+            const response = await fetch('/api/payments/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user.email,
+                    userId: user.id
+                })
+            });
+
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                throw new Error(data.error || "Failed to create checkout");
+            }
+        } catch (err: any) {
+            console.error("Checkout Error:", err);
+            alert(err.message || "Something went wrong. Please try again.");
+        } finally {
+            setIsSubmittingPayment(false);
+        }
+    };
 
     const renderBilling = () => {
         const joinDate = new Date(userProfile.joinDate || 'January 2024');
@@ -942,6 +969,7 @@ const BizPilotDashboard = () => {
         const diffTime = trialEndDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         const isExpired = diffDays <= 0;
+        const isPro = userProfile.plan === 'Pro Plan' || userProfile.subscription_status === 'active';
 
         return (
             <motion.div
@@ -952,10 +980,10 @@ const BizPilotDashboard = () => {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
-                        <p className="text-muted-foreground mt-1">Manage your plan and payments</p>
+                        <p className="text-muted-foreground mt-1">Manage your professional access</p>
                     </div>
-                    <Badge variant={isExpired ? "destructive" : "outline"} className="px-4 py-1.5 rounded-full text-sm font-semibold">
-                        {isExpired ? 'Subscription Expired' : 'Active Trial'}
+                    <Badge variant={isPro ? "default" : isExpired ? "destructive" : "outline"} className="px-4 py-1.5 rounded-full text-sm font-semibold">
+                        {isPro ? 'Pro Active' : isExpired ? 'Subscription Expired' : 'Trial Active'}
                     </Badge>
                 </div>
 
@@ -963,123 +991,90 @@ const BizPilotDashboard = () => {
                     <Card className="md:col-span-2 border-0 shadow-xl bg-white overflow-hidden">
                         <div className="h-2 w-full bg-primary" />
                         <CardHeader className="pb-4">
-                            <CardTitle className="text-xl">Your Current Plan</CardTitle>
-                            <CardDescription>Founder's Beta Pass — $0 First Month</CardDescription>
+                            <CardTitle className="text-xl">Subscription Status</CardTitle>
+                            <CardDescription>
+                                {isPro ? 'Thank you for being a Pro member!' : "You're currently on the Founder's Beta Pass"}
+                            </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
                                 <div className="space-y-1">
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Pricing Model</p>
-                                    <h4 className="text-2xl font-bold text-primary">$0 / first mo → $10 / mo</h4>
+                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Current Plan</p>
+                                    <h4 className="text-2xl font-bold text-primary">
+                                        {isPro ? 'Pro Operating System' : "Founder's Beta (Free)"}
+                                    </h4>
                                 </div>
                                 <div className="text-right">
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Time Remaining</p>
-                                    <h4 className={`text-2xl font-bold ${isExpired ? 'text-destructive' : 'text-foreground'}`}>
-                                        {isExpired ? '0 Days' : `${diffDays} Days`}
+                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
+                                        {isPro ? 'Next Billing' : 'Trial Remaining'}
+                                    </p>
+                                    <h4 className={`text-2xl font-bold ${!isPro && isExpired ? 'text-destructive' : 'text-foreground'}`}>
+                                        {isPro ? 'Monthly Auto-renew' : isExpired ? '0 Days' : `${diffDays} Days`}
                                     </h4>
                                 </div>
                             </div>
 
-                            <div className="space-y-4">
-                                <h4 className="font-semibold text-lg flex items-center gap-2">
-                                    <Shield className="h-5 w-5 text-primary" />
-                                    How to Pay (UPI)
-                                </h4>
-                                <p className="text-sm text-muted-foreground">
-                                    We accept manual UPI payments to keep processing fees 0%. Scan the QR code below or use our UPI ID to pay <strong>$10 (approx ₹840)</strong> for your next month.
-                                </p>
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 items-center bg-zinc-50 p-8 rounded-[2rem] border border-dashed border-zinc-200">
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="bg-white p-4 rounded-3xl shadow-lg border border-zinc-100">
-                                            <img
-                                                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=elitehostingsin@gmail.com%26pn=BizPilot%20OS%26am=10.00%26cu=USD`}
-                                                alt="UPI QR Code"
-                                                className="w-40 h-40"
-                                            />
+                            {!isPro && (
+                                <div className="space-y-6 p-8 rounded-[2rem] bg-zinc-950 text-white relative overflow-hidden">
+                                    <div className="relative z-10 space-y-4">
+                                        <h4 className="text-2xl font-bold tracking-tight">Ready to lock in your Pro access?</h4>
+                                        <p className="text-zinc-400 text-sm max-w-md">
+                                            Upgrade now to ensure zero interruptions. Pro members get unlimited leads, advanced finance tracking, and priority support.
+                                        </p>
+                                        <div className="flex items-baseline gap-2">
+                                            <span className="text-4xl font-black">$10</span>
+                                            <span className="text-zinc-500 text-sm">/ month</span>
                                         </div>
-                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest text-center">Scan with any UPI App</p>
+                                        <Button
+                                            onClick={handleDodoCheckout}
+                                            disabled={isSubmittingPayment}
+                                            className="bg-white text-black hover:bg-zinc-200 rounded-xl px-8 h-12 text-base font-bold transition-all active:scale-95"
+                                        >
+                                            {isSubmittingPayment ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Securing Connection...
+                                                </>
+                                            ) : (
+                                                'Upgrade to Pro Now'
+                                            )}
+                                        </Button>
                                     </div>
-                                    <div className="space-y-6 text-center sm:text-left">
-                                        <div>
-                                            <Label className="text-xs uppercase tracking-widest font-bold opacity-60">UPI ID</Label>
-                                            <div className="flex items-center justify-between gap-2 mt-1 p-3 bg-white border border-zinc-200 rounded-xl">
-                                                <span className="font-mono text-sm font-bold truncate">elitehostingsin@gmail.com</span>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg shrink-0" onClick={() => {
-                                                    navigator.clipboard.writeText('elitehostingsin@gmail.com');
-                                                    addActivity('security', 'UPI ID copied to clipboard');
-                                                }}>
-                                                    <Copy className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Label className="text-xs uppercase tracking-widest font-bold opacity-60">Expected Amount</Label>
-                                            <p className="text-2xl font-black text-foreground mt-1">$10.00</p>
-                                        </div>
-                                    </div>
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] -translate-y-1/2 translate-x-1/2" />
                                 </div>
-                            </div>
+                            )}
+
+                            {isPro && (
+                                <div className="flex items-center gap-3 p-4 bg-green-50 text-green-700 rounded-xl border border-green-100">
+                                    <Shield className="h-5 w-5" />
+                                    <p className="text-sm font-medium">Your connection is secured and subscription is managed via Dodo Payments.</p>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
                     <Card className="border-0 shadow-xl bg-white overflow-hidden self-start">
                         <div className="h-1 w-full bg-zinc-800" />
                         <CardHeader>
-                            <CardTitle className="text-lg">Submit Proof</CardTitle>
-                            <CardDescription>Enter your transaction detail</CardDescription>
+                            <CardTitle className="text-lg">Pro Benefits</CardTitle>
+                            <CardDescription>What you get with Pro</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Transaction / Ref ID</Label>
-                                <Input
-                                    placeholder="Enter Trans ID or UPI Ref"
-                                    className="rounded-xl border-zinc-200"
-                                    value={transactionId}
-                                    onChange={(e) => setTransactionId(e.target.value)}
-                                />
-                            </div>
-                            <Button
-                                className="w-full rounded-xl bg-black hover:bg-zinc-800 h-11 transition-all"
-                                onClick={async () => {
-                                    if (!transactionId) return;
-                                    setIsSubmittingPayment(true);
-
-                                    try {
-                                        const { data: { user } } = await supabase.auth.getUser();
-                                        if (user) {
-                                            // Update user profile with the latest transaction ID for admin verification
-                                            await supabase.from('user_profiles').update({
-                                                last_transaction_id: transactionId,
-                                                payment_status: 'pending_verification',
-                                                last_payment_date: new Date().toISOString()
-                                            }).eq('user_id', user.id);
-
-                                            addActivity('payment', `Payment proof submitted: ${transactionId}`);
-                                            alert('Payment proof submitted successfully! Our team will verify and update your status within 24 hours.');
-                                            setTransactionId('');
-                                        }
-                                    } catch (err) {
-                                        console.error('Error submitting payment:', err);
-                                        alert('Failed to submit proof. Please try again or contact support.');
-                                    } finally {
-                                        setIsSubmittingPayment(false);
-                                    }
-                                }}
-                                disabled={isSubmittingPayment || !transactionId}
-                            >
-                                {isSubmittingPayment ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Submitting...
-                                    </>
-                                ) : (
-                                    'Submit for Verification'
-                                )}
-                            </Button>
-                            <p className="text-[10px] text-zinc-400 text-center uppercase tracking-widest leading-relaxed">
-                                Subscription will be extended <br /> upon verification.
-                            </p>
+                        <CardContent>
+                            <ul className="space-y-4">
+                                {[
+                                    'Unlimited CRM Leads',
+                                    'Advanced Finance Tracking',
+                                    'Custom Proposal Templates',
+                                    'Website Audit Tools',
+                                    'Priority Email Support',
+                                    'Early Beta Features'
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-sm">
+                                        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
                         </CardContent>
                     </Card>
                 </div>
@@ -3357,7 +3352,7 @@ const BizPilotDashboard = () => {
                                 </div>
                                 <div>
                                     <p className="font-medium">Email</p>
-                                    <p className="text-sm text-muted-foreground">elitehostingsin@gmail.com</p>
+                                    <p className="text-sm text-muted-foreground">support@bizpilot-os.com</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-3">

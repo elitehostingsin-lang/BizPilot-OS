@@ -62,7 +62,7 @@ export default function LandingPage() {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full border border-green-200">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm font-medium text-green-700">100% Free Forever • No Credit Card Required</span>
+              <span className="text-sm font-medium text-green-700">100% Free First Month • No Credit Card Required</span>
             </div>
 
             <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold tracking-tighter leading-[1.1]">
@@ -145,7 +145,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4" />
-                <span>Free forever</span>
+                <span>Free First Month</span>
               </div>
               <div className="flex items-center gap-2">
                 <Check className="h-4 w-4" />
@@ -161,7 +161,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl font-bold mb-4 tracking-tight">Everything You Need</h2>
-            <p className="text-xl text-gray-600">10 powerful tools • 100% Free • Forever</p>
+            <p className="text-xl text-gray-600">10 powerful tools • 100% Free Trial</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -274,7 +274,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4 tracking-tight">100% Free Access</h2>
-            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">All features. All tools. Completely free. Forever.</p>
+            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">All features. All tools. Completely free trial.</p>
           </div>
 
           <div className="max-w-3xl mx-auto">
