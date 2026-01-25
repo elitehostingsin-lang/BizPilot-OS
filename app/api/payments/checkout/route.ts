@@ -31,16 +31,16 @@ export async function POST(req: NextRequest) {
             apiKey = "9_HZfeHUQeDm583D.amqBlR4yaF0yFlQdu-OLXNHghgEvPYshGT85Jm_cbEB35AFB";
         }
 
-        const productId = process.env.DODO_PRODUCT_ID || "p_123";
+        const productId = process.env.DODO_PRODUCT_ID;
 
         // Construct payload
+        // USAGE: If DODO_PRODUCT_ID is set, use it. Otherwise, assume ad-hoc payment.
+        const cartItem = productId
+            ? { product_id: productId, quantity: 1 }
+            : { name: "BizPilot Pro Subscription", amount: 1000, quantity: 1 }; // $10.00 fallback
+
         const payload = {
-            product_cart: [
-                {
-                    product_id: productId,
-                    quantity: 1
-                }
-            ],
+            product_cart: [cartItem],
             billing: {
                 city: "New York",
                 country: "US",
