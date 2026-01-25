@@ -5,7 +5,10 @@ export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
     try {
-        const { email, userId } = await req.json();
+        const body = await req.json();
+        const { email, userId } = body;
+
+        console.log("Checkout Request Initiated:", { email, userId });
 
         if (!email || !userId) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -21,61 +24,86 @@ export async function POST(req: NextRequest) {
         }
 
         const apiKey = process.env.DODO_PAYMENTS_API_KEY;
+        if (!apiKey) {
+            console.error("DODO_PAYMENTS_API_KEY is missing");
+            return NextResponse.json({ error: "Server misconfiguration: Missing API Key" }, { status: 500 });
+        }
+
         const productId = process.env.DODO_PRODUCT_ID || "p_123";
 
-        // Manual fetch to control exact JSON structure
+        // Construct payload
+        const payload = {
+            product_cart: [
+                {
+                    product_id: productId,
+                    quantity: 1
+                }
+            ],
+            billing: {
+                city: "New York",
+                country: "US",
+                state: "NY",
+                street: "123 Business Rd",
+                zip_code: "10001"
+            },
+            customer: {
+                email: email,
+                name: email.split('@')[0]
+            },
+            return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
+            metadata: {
+                userId: userId
+            }
+        };
+
+        console.log("Sending Payload to Dodo:", JSON.stringify(payload, null, 2));
+
+        // Manual fetch
         const response = await fetch('https://live.dodopayments.com/payments/create', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`
             },
-            body: JSON.stringify({
-                product_cart: [
-                    {
-                        product_id: productId,
-                        quantity: 1
-                    }
-                ],
-                billing: {
-                    city: "New York",
-                    country: "US",
-                    state: "NY",
-                    street: "123 Business Rd",
-                    zip_code: "10001"
-                },
-                customer: {
-                    email: email,
-                    name: email.split('@')[0]
-                },
-                return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
-                metadata: {
-                    userId: userId
-                }
-            })
+            body: JSON.stringify(payload)
         });
 
-        const data = await response.json();
+        // READ TEXT FIRST (Handling "Unexpected end of JSON input")
+        const responseText = await response.text();
+        console.log("Raw Dodo Response:", responseText);
 
-        console.log("Dodo API Response:", JSON.stringify(data, null, 2));
+        if (!responseText) {
+            throw new Error("Empty response from Dodo Payments API");
+        }
+
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error("Failed to parse Dodo response as JSON:", responseText);
+            throw new Error(`Invalid JSON response from Dodo: ${responseText.substring(0, 100)}...`);
+        }
 
         if (!response.ok) {
-            throw new Error(data.message || JSON.stringify(data));
+            console.error("Dodo API Error Response:", data);
+            throw new Error(data.message || data.error || JSON.stringify(data));
         }
 
         // Handle various response formats
         const checkoutUrl = data.checkout_url || data.url || data.payment_url;
 
         if (!checkoutUrl) {
-            throw new Error("No checkout URL in response");
+            console.error("No checkout URL in data:", data);
+            throw new Error("No checkout URL found in payment provider response");
         }
 
         return NextResponse.json({ url: checkoutUrl });
 
     } catch (error: any) {
-        console.error("Dodo Checkout Error:", error);
+        console.error("Checkout Fatal Error:", error);
         return NextResponse.json({
-            error: error.message || "Failed to create checkout session"
+            error: error.message || "Failed to create checkout session",
+            details: error.toString()
         }, { status: 500 });
     }
 }
