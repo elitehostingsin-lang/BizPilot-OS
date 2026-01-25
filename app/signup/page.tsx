@@ -58,8 +58,8 @@ export default function SignupPage() {
                 if (name) {
                     localStorage.setItem('bizpilot_onboarding_name', name);
                 }
-                // Redirect to onboarding instead of showing verification page
-                router.push('/onboarding');
+                setIsSignedUp(true);
+                setIsLoading(false);
             }
         } catch (err: any) {
             if (err.message?.includes("Failed to fetch")) {
