@@ -1044,11 +1044,27 @@ const BizPilotDashboard = () => {
                                 onClick={async () => {
                                     if (!transactionId) return;
                                     setIsSubmittingPayment(true);
-                                    await new Promise(r => setTimeout(r, 1500));
-                                    setIsSubmittingPayment(false);
-                                    setTransactionId('');
-                                    addActivity('payment', `Payment proof submitted: ${transactionId}`);
-                                    alert('Payment proof submitted successfully! Our team will verify and update your status within 24 hours.');
+
+                                    try {
+                                        const { data: { user } } = await supabase.auth.getUser();
+                                        if (user) {
+                                            // Update user profile with the latest transaction ID for admin verification
+                                            await supabase.from('user_profiles').update({
+                                                last_transaction_id: transactionId,
+                                                payment_status: 'pending_verification',
+                                                last_payment_date: new Date().toISOString()
+                                            }).eq('user_id', user.id);
+
+                                            addActivity('payment', `Payment proof submitted: ${transactionId}`);
+                                            alert('Payment proof submitted successfully! Our team will verify and update your status within 24 hours.');
+                                            setTransactionId('');
+                                        }
+                                    } catch (err) {
+                                        console.error('Error submitting payment:', err);
+                                        alert('Failed to submit proof. Please try again or contact support.');
+                                    } finally {
+                                        setIsSubmittingPayment(false);
+                                    }
                                 }}
                                 disabled={isSubmittingPayment || !transactionId}
                             >
