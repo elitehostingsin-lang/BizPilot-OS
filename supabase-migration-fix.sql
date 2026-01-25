@@ -1,7 +1,7 @@
 -- Fix for missing join_date column in user_profiles table
 -- Run this in your Supabase SQL Editor
 
--- First, check if the column exists
+-- Add join_date column if it doesn't exist
 DO $$ 
 BEGIN
     IF NOT EXISTS (
@@ -10,23 +10,22 @@ BEGIN
         WHERE table_name='user_profiles' 
         AND column_name='join_date'
     ) THEN
-        -- Add the join_date column if it doesn't exist
         ALTER TABLE user_profiles 
         ADD COLUMN join_date TIMESTAMPTZ DEFAULT NOW();
         
-        -- Update existing rows to have a join_date
+        -- Update existing rows using updated_at (not created_at)
         UPDATE user_profiles 
-        SET join_date = created_at 
-        WHERE join_date IS NULL AND created_at IS NOT NULL;
+        SET join_date = updated_at 
+        WHERE join_date IS NULL AND updated_at IS NOT NULL;
         
-        -- If no created_at, use current timestamp
+        -- Fallback to current timestamp
         UPDATE user_profiles 
         SET join_date = NOW() 
         WHERE join_date IS NULL;
     END IF;
 END $$;
 
--- Ensure the plan column exists and has correct type
+-- Add plan column if it doesn't exist
 DO $$ 
 BEGIN
     IF NOT EXISTS (
@@ -40,7 +39,7 @@ BEGIN
     END IF;
 END $$;
 
--- Add subscription_status if missing
+-- Add subscription_status column if it doesn't exist
 DO $$ 
 BEGIN
     IF NOT EXISTS (
@@ -58,4 +57,4 @@ END $$;
 SELECT column_name, data_type, column_default
 FROM information_schema.columns
 WHERE table_name = 'user_profiles'
-AND column_name IN ('join_date', 'plan', 'subscription_status');
+AND column_name IN ('join_date', 'plan', 'subscription_status', 'updated_at');
