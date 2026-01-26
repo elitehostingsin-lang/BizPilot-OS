@@ -23,7 +23,7 @@ async function getOrCreateProductId(apiKey: string): Promise<string> {
                 currency: "USD",
                 payment_type: "recurring",
                 interval: "month",
-                tax_category: "digital_services" // Required field
+                tax_category: "saas" // Correct enum value
             })
         });
 
