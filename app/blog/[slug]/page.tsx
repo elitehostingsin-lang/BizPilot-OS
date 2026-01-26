@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ChevronLeft, Calendar, User, Clock, Share2, Tag, ArrowRight } from 'lucide-react';
 import { blogPosts } from '@/lib/blog-data';
 import { Metadata } from 'next';
+import { BlogShareButtons } from '@/components/blog/share-buttons';
 
 export const runtime = 'edge';
 
@@ -158,12 +159,10 @@ export default async function BlogPostPage({ params }: Props) {
                     <div className="mt-20 pt-10 border-t border-gray-100 space-y-8">
                         {/* Share Section */}
                         <div className="flex items-center justify-between flex-wrap gap-4">
-                            <div className="flex items-center gap-4">
-                                <p className="text-sm font-bold uppercase tracking-widest text-gray-400">Share this insight</p>
-                                <div className="flex gap-2">
-                                    <button className="w-10 h-10 rounded-full bg-zinc-50 flex items-center justify-center hover:bg-zinc-100 transition-colors"><Share2 className="w-4 h-4" /></button>
-                                </div>
-                            </div>
+                            <BlogShareButtons
+                                url={`https://bizpilotos.pages.dev/blog/${post.slug}`}
+                                title={post.title}
+                            />
                             <Link
                                 href="/signup"
                                 className="bg-black text-white px-8 py-3 rounded-full font-bold text-sm tracking-widest uppercase hover:scale-105 transition-all inline-flex items-center gap-2"

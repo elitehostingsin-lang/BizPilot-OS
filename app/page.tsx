@@ -348,7 +348,7 @@ export default function LandingPage() {
               </button>
             </Link>
           </motion.div>
-          <p className="text-sm text-gray-400 font-medium">Fully Open Source Spirit • No Managed Fees • Lifetime Free</p>
+          <p className="text-sm text-gray-400 font-medium">Quick 2-platform social share required to unlock lifetime access.</p>
         </div>
       </section>
 
