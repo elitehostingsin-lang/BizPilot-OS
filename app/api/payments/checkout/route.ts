@@ -13,9 +13,9 @@ async function getOrCreateProductId(): Promise<string> {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { email, userId } = body;
+        const { email, userId, planId } = body; // Accept planId
 
-        console.log("Checkout Request Initiated:", { email, userId });
+        console.log("Checkout Request Initiated:", { email, userId, planId });
 
         if (!email || !userId) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -30,18 +30,23 @@ export async function POST(req: NextRequest) {
 
         let apiKey = process.env.DODO_PAYMENTS_API_KEY;
         if (!apiKey || apiKey.trim() === "") {
-            console.warn("Env Var DODO_PAYMENTS_API_KEY is missing. Using fallback key.");
             apiKey = "9_HZfeHUQeDm583D.amqBlR4yaF0yFlQdu-OLXNHghgEvPYshGT85Jm_cbEB35AFB";
         }
 
-        // Dynamically get valid Product ID
-        const productId = await getOrCreateProductId();
-        console.log("Using Product ID:", productId);
+        // Plan Mapping
+        const planMapping: Record<string, string> = {
+            'basic': process.env.DODO_BASIC_PLAN_ID || "pdt_0NX2peu6HbEMqgfIxiTlo", // Fallback to provided ID
+            'standard': "pdt_0NX2peu6HbEMqgfIxiTlo", // This is your verified ID
+            'premium': process.env.DODO_PREMIUM_PLAN_ID || "pdt_0NX2peu6HbEMqgfIxiTlo"
+        };
+
+        const productId = planMapping[planId || 'standard'];
+        console.log(`Using Plan: ${planId}, Product ID: ${productId}`);
 
         const payload = {
             product_cart: [
                 {
-                    product_id: productId, // Now sending the required field
+                    product_id: productId,
                     quantity: 1
                 }
             ],

@@ -270,66 +270,59 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-6 bg-gray-50 text-center">
+      <section id="pricing" className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4 tracking-tight">Smart CRM & CRM for Small Businesses</h2>
-            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">Manage leads, invoices, and growth without the complexity of traditional enterprise software.</p>
+            <h2 className="text-4xl font-bold mb-4 tracking-tight">Flexible Plans for Every Business</h2>
+            <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto italic">Start free, upgrade when you're ready to scale.</p>
           </div>
 
-          <div className="max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-              className="p-12 md:p-16 rounded-[2.5rem] border border-gray-100 bg-white shadow-2xl relative overflow-hidden group"
-            >
-              <div className="absolute top-0 left-0 w-full h-2 bg-black" />
-              <div className="mb-10 space-y-4">
-                <div className="inline-flex items-center gap-2 px-6 py-2 bg-black text-white rounded-full font-bold text-xs uppercase tracking-widest">
-                  Limited Time Offer
-                </div>
-                <h3 className="text-3xl font-bold">Professional Access</h3>
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-6xl font-black tracking-tighter">$10</span>
-                  <span className="text-gray-400 font-medium">/month</span>
-                </div>
-                <p className="text-gray-500 text-lg">Includes 30-day evaluation of all tools. <strong>CRM, Dashboard, and Profile stay free forever.</strong></p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12 text-left">
-                {[
-                  'Unlimited invoices & proposals',
-                  'Unlimited CRM leads',
-                  'Unlimited tasks & projects',
-                  'Financial tracking',
-                  'All content templates',
-                  'Website audit tools',
-                  'Sales scripts library',
-                  'Secure vault storage',
-                  'Form builder UI',
-                  'Community support',
-                ].map((feature, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <Check className="h-5 w-5 text-gray-400" />
-                    <span className="text-base font-medium">{feature}</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { id: 'basic', name: 'Starter', price: '₹499', desc: 'Perfect for new solopreneurs', features: ['30 Invoices/mo', 'Basic CRM', 'Tasks Board', 'Financial Tracking'] },
+              { id: 'standard', name: 'Professional', price: '₹999', desc: 'Most popular choice', features: ['Unlimited Invoices', 'Full CRM Suite', 'Website Audit', 'Advanced Analytics'], popular: true },
+              { id: 'premium', name: 'Enterprise', price: '₹2499', desc: 'For growing teams', features: ['Custom Branding', 'Priority Support', 'API Access', 'Dedicated Manager'] },
+            ].map((plan, i) => (
+              <motion.div
+                key={plan.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, duration: 0.6 }}
+                viewport={{ once: true }}
+                className={`p-10 rounded-[2.5rem] border ${plan.popular ? 'border-black bg-white shadow-2xl scale-105 z-10' : 'border-gray-200 bg-white/50'} relative overflow-hidden group flex flex-col`}
+              >
+                {plan.popular && (
+                  <div className="absolute top-0 right-0 px-6 py-2 bg-black text-white text-xs font-bold uppercase tracking-widest rounded-bl-2xl">
+                    Most Popular
                   </div>
-                ))}
-              </div>
+                )}
+                <div className="mb-8 space-y-2">
+                  <h3 className="text-2xl font-bold">{plan.name}</h3>
+                  <p className="text-gray-500 text-sm">{plan.desc}</p>
+                </div>
+                <div className="flex items-baseline gap-1 mb-8">
+                  <span className="text-5xl font-black tracking-tighter">{plan.price}</span>
+                  <span className="text-gray-400 font-medium">/mo</span>
+                </div>
 
-              <Link href="/signup">
-                <button
-                  className="w-full py-5 bg-black text-white rounded-2xl font-bold text-xl hover:bg-gray-800 transition-all shadow-xl hover:-translate-y-1 active:scale-95"
-                >
-                  Join Direct Access Now →
-                </button>
-              </Link>
+                <ul className="space-y-4 mb-10 flex-1">
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-center gap-3">
+                      <Check className={`h-5 w-5 ${plan.popular ? 'text-black' : 'text-gray-400'}`} />
+                      <span className="text-gray-600 font-medium">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
 
-              <p className="text-sm text-gray-400 mt-8 font-medium italic">
-                No credit card required • Cancel anytime • 2-minute setup
-              </p>
-            </motion.div>
+                <Link href={`/signup?plan=${plan.id}`}>
+                  <button
+                    className={`w-full py-5 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-95 ${plan.popular ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-black hover:bg-gray-200'}`}
+                  >
+                    Scale Now →
+                  </button>
+                </Link>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
