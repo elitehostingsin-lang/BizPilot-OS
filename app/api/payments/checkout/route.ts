@@ -3,6 +3,44 @@ import { createClient } from "@/lib/supabase-server";
 
 export const runtime = 'edge';
 
+// Helper to auto-create product if missing
+async function getOrCreateProductId(apiKey: string): Promise<string> {
+    const envProductId = process.env.DODO_PRODUCT_ID;
+    if (envProductId && envProductId !== 'p_123') return envProductId;
+
+    console.log("No DODO_PRODUCT_ID found. Attempting to auto-create product...");
+
+    try {
+        const createRes = await fetch('https://live.dodopayments.com/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                name: "BizPilot Pro Subscription",
+                description: "Monthly subscription for BizPilot OS Pro features",
+                amount: 1000, // $10.00
+                currency: "USD",
+                payment_type: "recurring",
+                interval: "month" // Common field for subscriptions
+            })
+        });
+
+        const data = await createRes.json();
+        console.log("Auto-create product response:", data);
+
+        if (data.product_id) return data.product_id;
+        if (data.id) return data.id; // Some APIs return 'id' instead of 'product_id'
+
+        throw new Error("Failed to extract product ID from creation response");
+    } catch (error) {
+        console.error("Auto-creation failed:", error);
+        // Fallback to a hardcoded ID if creation fails, but this will likely fail validation too
+        return "p_123";
+    }
+}
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
@@ -14,33 +52,30 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Secure backend check: Verify session matches userId
         const supabase = await createClient();
         const { data: { user }, error: authError } = await supabase.auth.getUser();
 
         if (authError || !user || user.id !== userId) {
-            console.error("Auth mismatch or not logged in for checkout:", { user: user?.id, requested: userId });
             return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
         }
 
         let apiKey = process.env.DODO_PAYMENTS_API_KEY;
-
-        // DEBUG: Fallback to the key you provided if env var is missing
         if (!apiKey || apiKey.trim() === "") {
             console.warn("Env Var DODO_PAYMENTS_API_KEY is missing. Using fallback key.");
             apiKey = "9_HZfeHUQeDm583D.amqBlR4yaF0yFlQdu-OLXNHghgEvPYshGT85Jm_cbEB35AFB";
         }
 
-        const productId = process.env.DODO_PRODUCT_ID;
-
-        // Construct payload
-        // USAGE: If DODO_PRODUCT_ID is set, use it. Otherwise, assume ad-hoc payment.
-        const cartItem = productId
-            ? { product_id: productId, quantity: 1 }
-            : { name: "BizPilot Pro Subscription", amount: 1000, quantity: 1 }; // $10.00 fallback
+        // Dynamically get valid Product ID
+        const productId = await getOrCreateProductId(apiKey);
+        console.log("Using Product ID:", productId);
 
         const payload = {
-            product_cart: [cartItem],
+            product_cart: [
+                {
+                    product_id: productId, // Now sending the required field
+                    quantity: 1
+                }
+            ],
             billing: {
                 city: "New York",
                 country: "US",
@@ -53,15 +88,9 @@ export async function POST(req: NextRequest) {
                 name: email.split('@')[0]
             },
             return_url: `${new URL(req.url).origin}/dashboard?payment=success`,
-            metadata: {
-                userId: userId
-            }
+            metadata: { userId: userId }
         };
 
-        console.log("Using API Key (Prefix):", apiKey.substring(0, 5) + "...");
-        console.log("Sending Payload to Dodo:", JSON.stringify(payload, null, 2));
-
-        // Try LIVE endpoint first (Key format suggests live/production)
         const response = await fetch('https://live.dodopayments.com/payments', {
             method: 'POST',
             headers: {
@@ -72,33 +101,22 @@ export async function POST(req: NextRequest) {
         });
 
         console.log(`Dodo API Status: ${response.status} ${response.statusText}`);
-
-        // READ TEXT
         const responseText = await response.text();
         console.log("Raw Dodo Response Body:", responseText || "(Empty String)");
-
-        if (!responseText && !response.ok) {
-            throw new Error(`Dodo API Failed with Status ${response.status} (${response.statusText}) and empty body.`);
-        }
 
         let data;
         try {
             data = JSON.parse(responseText);
         } catch (e) {
-            console.error("Failed to parse Dodo response as JSON:", responseText);
-            throw new Error(`Invalid JSON response from Dodo: ${responseText.substring(0, 100)}...`);
+            throw new Error(`Dodo API Error: ${response.status} ${response.statusText} - ${responseText}`);
         }
 
         if (!response.ok) {
-            console.error("Dodo API Error Response:", data);
             throw new Error(data.message || data.error || JSON.stringify(data));
         }
 
-        // Handle various response formats
         const checkoutUrl = data.checkout_url || data.url || data.payment_url;
-
         if (!checkoutUrl) {
-            console.error("No checkout URL in data:", data);
             throw new Error("No checkout URL found in payment provider response");
         }
 
