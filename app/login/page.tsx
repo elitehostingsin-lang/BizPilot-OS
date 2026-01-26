@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Image from "next/image";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -61,10 +62,13 @@ export default function LoginPage() {
             <Card className="w-full max-w-md border-zinc-200 dark:border-zinc-800 shadow-xl overflow-hidden animate-in fade-in zoom-in duration-500">
                 <CardHeader className="space-y-4">
                     <div className="flex justify-center">
-                        <img
+                        <Image
                             src="/logo.png"
                             alt="BizPilot OS"
-                            style={{ height: '70px', width: 'auto' }}
+                            width={150}
+                            height={70}
+                            priority
+                            className="h-[70px] w-auto"
                         />
                     </div>
                     <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>

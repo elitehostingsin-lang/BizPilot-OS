@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import Image from "next/image";
 
 // Custom hook for social sharing gate
 const useSocialGate = () => {
@@ -167,10 +168,13 @@ export default function SignupPage() {
                     <>
                         <CardHeader className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
                             <div className="flex justify-center">
-                                <img
+                                <Image
                                     src="/logo.png"
                                     alt="BizPilot OS"
-                                    style={{ height: '70px', width: 'auto' }}
+                                    width={150}
+                                    height={70}
+                                    priority
+                                    className="h-[70px] w-auto"
                                 />
                             </div>
                             <div className="bg-green-50 border border-green-100 p-3 rounded-xl flex items-center justify-center gap-2 mb-4">
