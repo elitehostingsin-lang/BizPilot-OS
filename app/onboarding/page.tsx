@@ -51,7 +51,8 @@ export default function OnboardingPage() {
                         email: user.email,
                         avatar: (user.user_metadata.full_name || 'Business Owner').split(' ').map((n: string) => n[0]).join(''),
                         join_date: new Date().toISOString(),
-                        plan: 'Free'
+                        plan: 'Paid',
+                        subscription_status: 'active'
                     });
                 }
             }

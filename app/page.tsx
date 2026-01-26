@@ -301,8 +301,8 @@ export default function LandingPage() {
                   <p className="text-gray-500 text-sm">{plan.desc}</p>
                 </div>
                 <div className="flex items-baseline gap-1 mb-8">
-                  <span className="text-5xl font-black tracking-tighter">{plan.price}</span>
-                  <span className="text-gray-400 font-medium">/mo</span>
+                  <span className="text-5xl font-black tracking-tighter">Free</span>
+                  <span className="text-gray-400 font-medium">Forever</span>
                 </div>
 
                 <ul className="space-y-4 mb-10 flex-1">
@@ -314,11 +314,11 @@ export default function LandingPage() {
                   ))}
                 </ul>
 
-                <Link href={`/signup?plan=${plan.id}`}>
+                <Link href="/signup">
                   <button
                     className={`w-full py-5 rounded-2xl font-bold text-lg transition-all shadow-lg active:scale-95 ${plan.popular ? 'bg-black text-white hover:bg-gray-800' : 'bg-gray-100 text-black hover:bg-gray-200'}`}
                   >
-                    Scale Now →
+                    Get Started Free →
                   </button>
                 </Link>
               </motion.div>
@@ -332,7 +332,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center space-y-10">
           <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">Ready to Scale?</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Join 1,000+ entrepreneurs who trust BizPilot OS. Get a 30-day evaluation of all tools today.
+            Join 1,000+ entrepreneurs who trust BizPilot OS. Get 100% free lifetime access to all tools today.
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -348,7 +348,7 @@ export default function LandingPage() {
               </button>
             </Link>
           </motion.div>
-          <p className="text-sm text-gray-400 font-medium">Try $0 First Month • No Credit Card Required</p>
+          <p className="text-sm text-gray-400 font-medium">Fully Open Source Spirit • No Managed Fees • Lifetime Free</p>
         </div>
       </section>
 

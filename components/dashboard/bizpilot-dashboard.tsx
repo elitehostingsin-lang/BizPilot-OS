@@ -77,7 +77,7 @@ const BizPilotDashboard = () => {
         email: 'user@example.com',
         company: 'Your Business',
         role: 'Founder',
-        plan: 'Free',
+        plan: 'Paid',
         joinDate: 'January 2024',
         avatar: 'JD',
         address: '123 Business Way, City, State',
@@ -111,7 +111,7 @@ const BizPilotDashboard = () => {
     const currencySymbol = currencies.find(c => c.code === userSettings.currency)?.symbol || '$';
 
     const { isPaid, isExpired, diffDays } = useMemo(() => {
-        const isPaid = userProfile.plan === 'Paid' || userProfile.subscription_status === 'active';
+        const isPaid = true; // 100% Free - All users are Pro
         const joinDate = new Date(userProfile.joinDate || 'January 2024');
         const trialEndDate = new Date(joinDate);
         trialEndDate.setMonth(trialEndDate.getMonth() + 1);
@@ -940,7 +940,7 @@ const BizPilotDashboard = () => {
     ];
 
     const bottomNavItems = [
-        { id: 'billing', label: 'Subscription', icon: CreditCard },
+        // { id: 'billing', label: 'Subscription', icon: CreditCard },
         { id: 'support', label: 'Support', icon: HelpCircle },
     ];
 
@@ -1012,8 +1012,8 @@ const BizPilotDashboard = () => {
                         <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
                         <p className="text-muted-foreground mt-1">Manage your professional access</p>
                     </div>
-                    <Badge variant={isPaid ? "default" : isExpired ? "destructive" : "outline"} className="px-4 py-1.5 rounded-full text-sm font-semibold">
-                        {isPaid ? 'Active Subscription' : isExpired ? 'Free Tier (Limited)' : 'Full Access Trial'}
+                    <Badge variant="default" className="px-4 py-1.5 rounded-full text-sm font-semibold">
+                        Lifetime Pro Access
                     </Badge>
                 </div>
 
@@ -1023,7 +1023,7 @@ const BizPilotDashboard = () => {
                         <CardHeader className="pb-4">
                             <CardTitle className="text-xl">Subscription Status</CardTitle>
                             <CardDescription>
-                                {isPaid ? 'Thank you for your supporting BizPilot OS!' : "Enjoy full access during your 30-day evaluation"}
+                                Thank you for being a part of BizPilot OS! Enjoy lifetime professional access.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
@@ -1039,7 +1039,7 @@ const BizPilotDashboard = () => {
                                         {isPaid ? 'Next Billing' : 'Trial Remaining'}
                                     </p>
                                     <h4 className={`text-2xl font-bold ${!isPaid && isExpired ? 'text-destructive' : 'text-foreground'}`}>
-                                        {isPaid ? 'Monthly Auto-renew' : isExpired ? '0 Days' : `${diffDays} Days`}
+                                        Lifetime Free
                                     </h4>
                                 </div>
                             </div>
