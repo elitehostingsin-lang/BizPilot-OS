@@ -20,10 +20,10 @@ async function getOrCreateProductId(apiKey: string): Promise<string> {
             body: JSON.stringify({
                 name: "BizPilot Pro Subscription",
                 description: "Monthly subscription for BizPilot OS Pro features",
-                amount: 1000, // $10.00
                 currency: "USD",
                 payment_type: "recurring",
-                interval: "month"
+                interval: "month",
+                tax_category: "digital_services" // Required field
             })
         });
 
