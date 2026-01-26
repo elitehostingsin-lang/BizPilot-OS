@@ -23,21 +23,21 @@ async function getOrCreateProductId(apiKey: string): Promise<string> {
                 amount: 1000, // $10.00
                 currency: "USD",
                 payment_type: "recurring",
-                interval: "month" // Common field for subscriptions
+                interval: "month"
             })
         });
 
         const data = await createRes.json();
-        console.log("Auto-create product response:", data);
+        console.log("Auto-create product response:", JSON.stringify(data, null, 2));
 
         if (data.product_id) return data.product_id;
-        if (data.id) return data.id; // Some APIs return 'id' instead of 'product_id'
+        if (data.id) return data.id;
 
-        throw new Error("Failed to extract product ID from creation response");
-    } catch (error) {
-        console.error("Auto-creation failed:", error);
-        // Fallback to a hardcoded ID if creation fails, but this will likely fail validation too
-        return "p_123";
+        throw new Error(`Failed to extract product ID. Response: ${JSON.stringify(data)}`);
+    } catch (error: any) {
+        console.error("Auto-creation failed detailed:", error);
+        // DO NOT RETURN FAKE ID. Throw so we know why it failed.
+        throw new Error(`Product Auto-Creation Failed: ${error.message || error}`);
     }
 }
 
