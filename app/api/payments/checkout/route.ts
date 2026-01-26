@@ -3,42 +3,11 @@ import { createClient } from "@/lib/supabase-server";
 
 export const runtime = 'edge';
 
-// Helper to auto-create product if missing
-async function getOrCreateProductId(apiKey: string): Promise<string> {
+// Helper to get Product ID
+async function getOrCreateProductId(): Promise<string> {
     const envProductId = process.env.DODO_PRODUCT_ID;
     if (envProductId && envProductId !== 'p_123') return envProductId;
-
-    console.log("No DODO_PRODUCT_ID found. Attempting to auto-create product...");
-
-    try {
-        const createRes = await fetch('https://live.dodopayments.com/products', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                name: "BizPilot Pro Subscription",
-                description: "Monthly subscription for BizPilot OS Pro features",
-                currency: "USD",
-                payment_type: "recurring",
-                interval: "month",
-                tax_category: "saas" // Correct enum value
-            })
-        });
-
-        const data = await createRes.json();
-        console.log("Auto-create product response:", JSON.stringify(data, null, 2));
-
-        if (data.product_id) return data.product_id;
-        if (data.id) return data.id;
-
-        throw new Error(`Failed to extract product ID. Response: ${JSON.stringify(data)}`);
-    } catch (error: any) {
-        console.error("Auto-creation failed detailed:", error);
-        // DO NOT RETURN FAKE ID. Throw so we know why it failed.
-        throw new Error(`Product Auto-Creation Failed: ${error.message || error}`);
-    }
+    return "pdt_0NX2peu6HbEMqgfIxiTlo";
 }
 
 export async function POST(req: NextRequest) {
@@ -66,7 +35,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Dynamically get valid Product ID
-        const productId = await getOrCreateProductId(apiKey);
+        const productId = await getOrCreateProductId();
         console.log("Using Product ID:", productId);
 
         const payload = {
