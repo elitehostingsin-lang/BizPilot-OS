@@ -148,7 +148,7 @@ export function LeadsView() {
             </div>
 
             {/* 🔍 Dynamic Filter Bar */}
-            <Card className="border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-2xl">
+            <Card className="border-border/40 bg-card/80 backdrop-blur-xl overflow-hidden shadow-2xl">
                 <div className="p-4 border-b border-border/40 flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div className="relative w-full md:w-96 group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
