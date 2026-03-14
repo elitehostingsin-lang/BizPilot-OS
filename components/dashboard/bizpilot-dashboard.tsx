@@ -62,6 +62,7 @@ const BizPilotDashboard = () => {
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
     const [isActivatingTrial, setIsActivatingTrial] = useState(false);
+    const [greeting, setGreeting] = useState('');
     const router = useRouter();
 
     // Persistence and State
@@ -193,6 +194,11 @@ const BizPilotDashboard = () => {
                 setIsLoadingData(false);
             }
         };
+
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting("Good morning");
+        else if (hour < 17) setGreeting("Good afternoon");
+        else setGreeting("Good evening");
 
         fetchData();
     }, []);
@@ -1129,12 +1135,7 @@ const BizPilotDashboard = () => {
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">System Engine Active</span>
                 </div>
                 <h1 className="text-4xl font-extrabold text-foreground tracking-tight md:text-5xl">
-                    {(() => {
-                        const hour = new Date().getHours();
-                        if (hour < 12) return "Good morning";
-                        if (hour < 17) return "Good afternoon";
-                        return "Good evening";
-                    })()}, {(userProfile?.name || 'User').split(' ')[0]}
+                    {greeting || 'Welcome back'}, {(userProfile?.name || 'User').split(' ')[0]}
                 </h1>
                 <p className="text-muted-foreground font-medium text-lg">
                     You have <span className="text-foreground font-bold">{pendingTasks} critical tasks</span> and <span className="text-foreground font-bold">{draftInvoices} pending invoices</span> to review.
@@ -1148,8 +1149,8 @@ const BizPilotDashboard = () => {
                     { label: 'Pending Tasks', value: pendingTasks, trend: '5 due soon', icon: CheckSquare, color: 'text-muted-foreground' },
                     { label: 'Draft Invoices', value: draftInvoices, trend: 'Needs attention', icon: AlertCircle, color: 'text-destructive' },
                 ].map((stat, i) => (
-                    <Card key={i} className="border border-border/50 shadow-xl hover:shadow-2xl hover:border-primary/50 transition-all duration-500 group rounded-[2rem] bg-card/50 backdrop-blur-sm overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl -z-10 group-hover:bg-primary/10 transition-colors" />
+                    <Card key={i} className="border border-border/50 shadow-xl hover:shadow-2xl hover:border-primary/50 transition-all duration-500 group rounded-[2rem] bg-card/80 backdrop-blur-md overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl -z-10 group-hover:bg-primary/20 transition-colors" />
                         <CardHeader className="pb-2">
                             <CardDescription className="text-xs font-black uppercase tracking-widest text-muted-foreground">{stat.label}</CardDescription>
                             <CardTitle className="text-4xl font-extrabold mt-1 tracking-tighter">{stat.value}</CardTitle>
@@ -1165,7 +1166,7 @@ const BizPilotDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="border border-border/50 shadow-2xl rounded-[2.5rem] bg-card/40 backdrop-blur-xl overflow-hidden group">
+                <Card className="border border-border/50 shadow-2xl rounded-[2.5rem] bg-card/90 backdrop-blur-xl overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] -z-10" />
                     <CardHeader className="pb-6">
                         <CardTitle className="text-2xl font-black tracking-tight">Quick Commands</CardTitle>
@@ -1190,7 +1191,7 @@ const BizPilotDashboard = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="border border-border/50 shadow-2xl rounded-[2.5rem] bg-card/40 backdrop-blur-xl overflow-hidden">
+                <Card className="border border-border/50 shadow-2xl rounded-[2.5rem] bg-card/90 backdrop-blur-xl overflow-hidden">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] -z-10" />
                     <CardHeader className="pb-6">
                         <CardTitle className="text-2xl font-black tracking-tight">Recent Intelligence</CardTitle>
@@ -3975,14 +3976,14 @@ const BizPilotDashboard = () => {
     return (
         <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
             {/* Sidebar */}
-            <aside className="w-64 bg-card border-r border-border flex flex-col z-40 backdrop-blur-xl bg-card/80">
+            <aside className="w-64 bg-card border-r border-border flex flex-col z-40 backdrop-blur-xl bg-card/95">
                 <div className="p-6 border-b border-border flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
                         <svg className="w-6 h-6 text-primary-foreground" viewBox="0 0 100 100" fill="none">
                             <path d="M20 80L50 20L80 50L65 50L50 35L35 65L50 65L65 80L20 80Z" fill="currentColor" />
                         </svg>
                     </div>
-                    <span className="font-bold text-xl tracking-tight">BizPilot<span className="font-light opacity-70">OS</span></span>
+                    <span className="font-black text-xl tracking-tight text-foreground">BizPilot<span className="text-primary">OS</span></span>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">

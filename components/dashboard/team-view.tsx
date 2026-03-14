@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
-    Users as UsersIcon, Plus, Mail, Phone, TrendingUp,
+    Users, Plus, Mail, Phone, TrendingUp,
     Shield, UserPlus, MoreVertical, Search,
     Loader2, CheckCircle2, Award, Zap, ChevronRight
 } from "lucide-react";
@@ -169,9 +169,9 @@ export function TeamView() {
 
             {/* 📊 Fleet Performance Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card className="border-border/50 shadow-xl bg-background/40 backdrop-blur-xl group overflow-hidden">
+                <Card className="border-border/50 shadow-xl bg-card/80 backdrop-blur-xl group overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <UsersIcon className="h-12 w-12" />
+                        <Users className="h-12 w-12" />
                     </div>
                     <CardHeader className="pb-2">
                         <CardDescription className="text-[10px] font-black uppercase tracking-widest">Active Fleet size</CardDescription>
@@ -195,16 +195,16 @@ export function TeamView() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.4 }}
                         >
-                            <Card className="border-border/50 shadow-2xl bg-background/40 backdrop-blur-xl hover:border-primary/40 transition-all overflow-hidden relative rounded-[2.5rem] group">
+                            <Card className="border-border/50 shadow-2xl bg-card/80 backdrop-blur-xl hover:border-primary/40 transition-all overflow-hidden relative rounded-[2.5rem] group">
                                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <div className="flex items-center gap-4">
                                         <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
-                                            <span className="text-xl font-black text-primary">{member.full_name.charAt(0)}</span>
+                                            <span className="text-xl font-black text-primary">{(member.full_name || 'U').charAt(0)}</span>
                                         </div>
                                         <div>
-                                            <CardTitle className="text-xl font-black">{member.full_name}</CardTitle>
+                                            <CardTitle className="text-xl font-black">{member.full_name || 'Unnamed Member'}</CardTitle>
                                             <Badge variant="secondary" className="bg-primary/10 text-primary border-none text-[8px] font-black uppercase tracking-widest mt-1">
-                                                {member.role === 'telecaller' ? 'TELE-OFFICER' : member.role.toUpperCase()}
+                                                {(member.role || 'telecaller') === 'telecaller' ? 'TELE-OFFICER' : (member.role || 'telecaller').toUpperCase()}
                                             </Badge>
                                         </div>
                                     </div>
@@ -262,7 +262,7 @@ export function TeamView() {
             {!loading && teamMembers.length === 0 && (
                 <div className="py-32 text-center space-y-6">
                     <div className="h-24 w-24 bg-muted/10 rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-border/40 opacity-30">
-                        <UsersIcon className="h-10 w-10" />
+                        <Users className="h-10 w-10" />
                     </div>
                     <div>
                         <h3 className="text-3xl font-black tracking-tight">Fleet Depleted</h3>

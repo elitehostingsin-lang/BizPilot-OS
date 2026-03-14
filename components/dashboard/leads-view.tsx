@@ -11,7 +11,7 @@ import {
     Search, Plus, Filter, Phone, Mail, MapPin,
     Calendar, MoreVertical, ExternalLink, UserCheck,
     TrendingUp, AlertCircle, Download, RefreshCw,
-    Users as UsersIcon, User as UserIcon, History as HistoryIcon
+    Users, User, History, Facebook
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -130,12 +130,12 @@ export function LeadsView() {
             {/* 📊 Intelligence Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Volume', value: stats.total, icon: UsersIcon, color: 'text-primary' },
+                    { label: 'Total Volume', value: stats.total, icon: Users, color: 'text-primary' },
                     { label: 'Fresh Leads', value: stats.new, icon: AlertCircle, color: 'text-blue-500' },
                     { label: 'In Pipeline', value: stats.contacted, icon: Phone, color: 'text-amber-500' },
                     { label: 'Success Rate', value: `${(stats.converted / (stats.total || 1) * 100).toFixed(1)}%`, icon: UserCheck, color: 'text-emerald-500' }
                 ].map((stat, i) => (
-                    <Card key={i} className="border-border/50 bg-background/40 backdrop-blur-xl shadow-lg hover:border-primary/30 transition-all group">
+                    <Card key={i} className="border-border/50 bg-card/80 backdrop-blur-xl shadow-lg hover:border-primary/30 transition-all group">
                         <CardHeader className="pb-2">
                             <div className="flex items-center justify-between">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</p>
@@ -198,10 +198,10 @@ export function LeadsView() {
                                 <TableCell className="py-6 pl-8">
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20 font-black text-primary">
-                                            {lead.full_name.charAt(0)}
+                                            {(lead.full_name || 'U').charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="font-black text-sm tracking-tight">{lead.full_name}</p>
+                                            <p className="font-black text-sm tracking-tight">{lead.full_name || 'Unnamed Lead'}</p>
                                             <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground font-bold">
                                                 <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {lead.email || 'N/A'}</span>
                                                 <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {lead.phone || 'N/A'}</span>
@@ -213,7 +213,7 @@ export function LeadsView() {
                                     <div className="flex items-center gap-2">
                                         {lead.source === 'meta_ads' ? (
                                             <Badge className="rounded-xl bg-blue-500/10 text-blue-500 border-blue-500/20 gap-1.5 px-3 py-1 text-[10px] font-black">
-                                                <FacebookIcon className="h-3 w-3" /> Meta Ads
+                                                <Facebook className="h-3 w-3" /> Meta Ads
                                             </Badge>
                                         ) : (
                                             <Badge variant="outline" className="rounded-xl gap-1.5 px-3 py-1 text-[10px] uppercase font-black">
@@ -223,8 +223,8 @@ export function LeadsView() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className={`rounded-xl px-3 py-1 text-[10px] font-black border-none ${getStatusBadge(lead.status)}`}>
-                                        {lead.status.toUpperCase()}
+                                    <Badge variant="outline" className={`rounded-xl px-3 py-1 text-[10px] font-black border-none ${getStatusBadge(lead.status || 'new')}`}>
+                                        {(lead.status || 'new').toUpperCase()}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>
@@ -234,7 +234,13 @@ export function LeadsView() {
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-xs font-medium text-muted-foreground">
-                                    {format(new Date(lead.created_at), 'MMM dd, hh:mm a')}
+                                    {lead.created_at ? (() => {
+                                        try {
+                                            return format(new Date(lead.created_at), 'MMM dd, hh:mm a');
+                                        } catch (e) {
+                                            return 'Just now';
+                                        }
+                                    })() : 'Just now'}
                                 </TableCell>
                                 <TableCell className="text-right pr-8">
                                     <div className="flex items-center justify-end gap-2">
@@ -252,7 +258,7 @@ export function LeadsView() {
                                                     {/* Info Grid */}
                                                     <div className="space-y-6">
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <UserIcon className="h-4 w-4" /> Professional Profile
+                                                            <User className="h-4 w-4" /> Professional Profile
                                                         </h3>
                                                         <div className="grid grid-cols-2 gap-6 bg-muted/20 p-6 rounded-3xl border border-border/20">
                                                             <div><p className="text-[10px] font-bold text-muted-foreground uppercase">Full Name</p><p className="font-black">{lead.full_name}</p></div>
@@ -262,7 +268,7 @@ export function LeadsView() {
                                                         </div>
 
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <MetaIcon className="h-4 w-4" /> Meta Ads Technical Metadata
+                                                            <Facebook className="h-4 w-4" /> Meta Ads Technical Metadata
                                                         </h3>
                                                         <div className="bg-muted/20 p-6 rounded-3xl border border-border/20 space-y-4">
                                                             <div className="flex justify-between border-b border-border/20 pb-2"><p className="text-xs font-bold text-muted-foreground">Meta Lead ID</p><p className="text-xs font-black font-mono">{lead.meta_lead_id || 'N/A'}</p></div>
@@ -274,7 +280,7 @@ export function LeadsView() {
                                                     {/* Activity History */}
                                                     <div className="space-y-6">
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <HistoryIcon className="h-4 w-4" /> Operational History
+                                                            <History className="h-4 w-4" /> Operational History
                                                         </h3>
                                                         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                                             <ActivityLog leadId={lead.id} />
@@ -296,7 +302,7 @@ export function LeadsView() {
                 {!loading && filteredLeads.length === 0 && (
                     <div className="py-24 text-center">
                         <div className="h-20 w-20 bg-muted/20 rounded-full flex items-center justify-center mx-auto border border-dashed border-border/50 opacity-20 mb-6">
-                            <UsersIcon className="h-10 w-10" />
+                            <Users className="h-10 w-10" />
                         </div>
                         <h3 className="text-2xl font-black">Zero Leads Detected</h3>
                         <p className="text-muted-foreground mt-2 font-medium">Connect Meta Ads or Import manually to start your growth cycle.</p>
@@ -331,94 +337,10 @@ function ActivityLog({ leadId }: { leadId: string }) {
                     <p className="text-xs font-black tracking-tight">{act.subject}</p>
                     <p className="text-[10px] text-muted-foreground mt-1 font-medium leading-relaxed">{act.description}</p>
                     <p className="text-[8px] font-black uppercase tracking-widest text-primary/40 mt-2">
-                        {format(new Date(act.created_at), 'MMM dd, hh:mm a')}
+                        {act.created_at ? format(new Date(act.created_at), 'MMM dd, hh:mm a') : 'Just now'}
                     </p>
                 </div>
             ))}
         </div>
     );
-}
-
-function FacebookIcon(props: any) {
-    return (
-        <svg
-            {...props}
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path d="M24 12.0735C24 5.40561 18.6274 0 12 0C5.37258 0 0 5.40561 0 12.0735C0 18.1037 4.38823 23.0984 10.125 24V15.5625H7.07812V12.0735H10.125V9.41324C10.125 6.3875 11.916 4.71691 14.6576 4.71691C15.9705 4.71691 17.3438 4.95221 17.3438 4.95221V7.92647H15.8273C14.3359 7.92647 13.875 8.85765 13.875 9.8125V12.0735H17.2031L16.6711 15.5625H13.875V24C19.6118 23.0984 24 18.1037 24 12.0735Z" />
-        </svg>
-    );
-}
-
-function HistoryIcon(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-            <path d="m12 7 0 5 3 3" />
-        </svg>
-    );
-}
-
-function UserIcon(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-        </svg>
-    );
-}
-
-function UsersIcon(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-    );
-}
-
-function MetaIcon(props: any) {
-    return (
-        <svg {...props} viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-            <path d="M15.111 11.231c-.961 0-1.74-.775-1.74-1.73s.779-1.729 1.74-1.729c.961 0 1.741.774 1.741 1.729s-.78 1.73-1.741 1.73zm-6.222 0c-.961 0-1.74-.775-1.74-1.73s.779-1.729 1.74-1.729c.961 0 1.741.774 1.741 1.729s-.78 1.73-1.741 1.73zm13.333-1.731c0-3.64-2.96-6.6-6.6-6.6-1.791 0-3.414.716-4.6 1.874-1.186-1.158-2.809-1.874-4.6-1.874-3.64 0-6.6 2.96-6.6 6.6 0 2.227 1.109 4.194 2.809 5.374V21l3.3-1.65 3.3 1.65V14.974c1.7-.1.3 3.3V21l3.3-1.65 3.3 1.65v-5.626c1.7-1.18 2.809-3.147 2.809-5.374z" />
-        </svg>
-    )
 }
