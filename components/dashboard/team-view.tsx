@@ -10,14 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
-    Users, Plus, Mail, Phone, TrendingUp,
+    Users as UsersIcon, Plus, Mail, Phone, TrendingUp,
     Shield, UserPlus, MoreVertical, Search,
-    Loader2, CheckCircle2, Award, Zap
+    Loader2, CheckCircle2, Award, Zap, ChevronRight
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
-export default function TeamPage() {
+export function TeamView() {
     const [teamMembers, setTeamMembers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,7 +85,7 @@ export default function TeamPage() {
     };
 
     return (
-        <div className="space-y-8 p-6 lg:p-10 bg-background/50 backdrop-blur-3xl min-h-screen">
+        <div className="space-y-8 p-0">
             {/* 🚀 Team Command Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
@@ -171,7 +171,7 @@ export default function TeamPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <Card className="border-border/50 shadow-xl bg-background/40 backdrop-blur-xl group overflow-hidden">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <Users className="h-12 w-12" />
+                        <UsersIcon className="h-12 w-12" />
                     </div>
                     <CardHeader className="pb-2">
                         <CardDescription className="text-[10px] font-black uppercase tracking-widest">Active Fleet size</CardDescription>
@@ -181,7 +181,6 @@ export default function TeamPage() {
                         <p className="text-[10px] text-emerald-500 font-black">+2 Since last cycle</p>
                     </CardContent>
                 </Card>
-                {/* Add more metrics here if needed */}
             </div>
 
             {/* 📋 Team Roster Grid */}
@@ -263,7 +262,7 @@ export default function TeamPage() {
             {!loading && teamMembers.length === 0 && (
                 <div className="py-32 text-center space-y-6">
                     <div className="h-24 w-24 bg-muted/10 rounded-full flex items-center justify-center mx-auto border-2 border-dashed border-border/40 opacity-30">
-                        <Users className="h-10 w-10" />
+                        <UsersIcon className="h-10 w-10" />
                     </div>
                     <div>
                         <h3 className="text-3xl font-black tracking-tight">Fleet Depleted</h3>

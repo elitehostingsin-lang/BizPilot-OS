@@ -1,32 +1,28 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
-export async function createClient() {
-    const cookieStore = await cookies()
-
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://awofmvawjtaarkugxxww.supabase.co'
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3b2ZtdmF3anRhYXJrdWd4eHd3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5ODQ3ODEsImV4cCI6MjA4NDU2MDc4MX0.5LdZqE2qxN516JcegFhKiU7k7jA7iJ4ri8B92wG10CQ'
+export async function createServerSupabaseClient() {
+    const cookieStore = await cookies();
 
     return createServerClient(
-        url,
-        key,
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         {
             cookies: {
-                getAll() {
-                    return cookieStore.getAll()
+                get(name: string) {
+                    return cookieStore.get(name)?.value;
                 },
-                setAll(cookiesToSet) {
+                set(name: string, value: string, options: CookieOptions) {
                     try {
-                        cookiesToSet.forEach(({ name, value, options }) =>
-                            cookieStore.set(name, value, options)
-                        )
-                    } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
-                    }
+                        cookieStore.set({ name, value, ...options });
+                    } catch (error) { }
+                },
+                remove(name: string, options: CookieOptions) {
+                    try {
+                        cookieStore.set({ name, value: '', ...options });
+                    } catch (error) { }
                 },
             },
         }
-    )
+    );
 }

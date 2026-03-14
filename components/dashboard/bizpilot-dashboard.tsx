@@ -11,6 +11,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
+import { LeadsView } from './leads-view';
+import { TeamView } from './team-view';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -142,19 +144,19 @@ const BizPilotDashboard = () => {
                     { data: proposalsData },
                     { data: formsData },
                     { data: profileData },
-                    { data: settingsData }
+                    { data: teamData }
                 ] = await Promise.all([
-                    supabase.from('leads').select('*').order('id', { ascending: false }),
-                    supabase.from('tasks').select('*').order('id', { ascending: false }),
-                    supabase.from('invoices').select('*').order('id', { ascending: false }),
-                    supabase.from('finance_entries').select('*').order('id', { ascending: false }),
-                    supabase.from('notes').select('*').order('id', { ascending: false }),
-                    supabase.from('support_tickets').select('*').order('id', { ascending: false }),
-                    supabase.from('activities').select('*').order('timestamp', { ascending: false }).limit(50),
-                    supabase.from('proposals').select('*').order('id', { ascending: false }),
+                    supabase.from('leads').select('*').order('created_at', { ascending: false }),
+                    supabase.from('tasks').select('*').order('created_at', { ascending: false }),
+                    supabase.from('invoices').select('*').order('created_at', { ascending: false }),
+                    supabase.from('finance_entries').select('*').order('date', { ascending: false }),
+                    supabase.from('notes').select('*').order('date', { ascending: false }),
+                    supabase.from('support_tickets').select('*').order('date', { ascending: false }),
+                    supabase.from('activities').select('*').order('created_at', { ascending: false }).limit(50),
+                    supabase.from('proposals').select('*').order('created_at', { ascending: false }),
                     supabase.from('forms').select('*').order('id', { ascending: false }),
-                    supabase.from('user_profiles').select('*').single(),
-                    supabase.from('user_settings').select('*').single()
+                    supabase.from('profiles').select('*').single(),
+                    supabase.from('team_members').select('*').order('created_at', { ascending: false })
                 ]);
 
                 // Role & ID from Unified Login Flow
@@ -175,14 +177,15 @@ const BizPilotDashboard = () => {
                 if (profileData) {
                     const mappedProfile = {
                         ...profileData,
-                        joinDate: profileData.join_date || 'January 2024'
+                        joinDate: profileData.join_date || 'January 2024',
+                        employees: teamData ? teamData.map((m: any) => ({
+                            id: m.id,
+                            name: m.full_name,
+                            role: m.role
+                        })) : []
                     };
                     setUserProfile(mappedProfile);
                     setTempProfile(mappedProfile);
-                }
-                if (settingsData) {
-                    setUserSettings(settingsData);
-                    setTempSettings(settingsData);
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -3953,8 +3956,8 @@ const BizPilotDashboard = () => {
             case 'dashboard': return renderDashboard();
             case 'content': return renderContentBuilder();
             case 'invoices': return renderInvoices();
-            case 'leads': return renderLeads();
-            case 'team': return renderTeam();
+            case 'leads': return <LeadsView />;
+            case 'team': return <TeamView />;
             case 'tasks': return renderTasks();
             case 'proposals': return renderProposals();
             case 'finance': return renderFinance();

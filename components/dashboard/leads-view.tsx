@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import {
     Search, Plus, Filter, Phone, Mail, MapPin,
     Calendar, MoreVertical, ExternalLink, UserCheck,
-    TrendingUp, AlertCircle, Meta, Download, RefreshCw
+    TrendingUp, AlertCircle, Download, RefreshCw,
+    Users as UsersIcon, User as UserIcon, History as HistoryIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -31,7 +32,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 
-export default function LeadsPage() {
+export function LeadsView() {
     const [leads, setLeads] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
@@ -103,7 +104,7 @@ export default function LeadsPage() {
     };
 
     return (
-        <div className="space-y-8 p-6 lg:p-10 bg-background/50 backdrop-blur-3xl min-h-screen">
+        <div className="space-y-8 p-0">
             {/* 🚀 CRM Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
@@ -129,7 +130,7 @@ export default function LeadsPage() {
             {/* 📊 Intelligence Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                    { label: 'Total Volume', value: stats.total, icon: Users, color: 'text-primary' },
+                    { label: 'Total Volume', value: stats.total, icon: UsersIcon, color: 'text-primary' },
                     { label: 'Fresh Leads', value: stats.new, icon: AlertCircle, color: 'text-blue-500' },
                     { label: 'In Pipeline', value: stats.contacted, icon: Phone, color: 'text-amber-500' },
                     { label: 'Success Rate', value: `${(stats.converted / (stats.total || 1) * 100).toFixed(1)}%`, icon: UserCheck, color: 'text-emerald-500' }
@@ -212,7 +213,7 @@ export default function LeadsPage() {
                                     <div className="flex items-center gap-2">
                                         {lead.source === 'meta_ads' ? (
                                             <Badge className="rounded-xl bg-blue-500/10 text-blue-500 border-blue-500/20 gap-1.5 px-3 py-1 text-[10px] font-black">
-                                                <Facebook className="h-3 w-3" /> Meta Ads
+                                                <FacebookIcon className="h-3 w-3" /> Meta Ads
                                             </Badge>
                                         ) : (
                                             <Badge variant="outline" className="rounded-xl gap-1.5 px-3 py-1 text-[10px] uppercase font-black">
@@ -251,7 +252,7 @@ export default function LeadsPage() {
                                                     {/* Info Grid */}
                                                     <div className="space-y-6">
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <User className="h-4 w-4" /> Professional Profile
+                                                            <UserIcon className="h-4 w-4" /> Professional Profile
                                                         </h3>
                                                         <div className="grid grid-cols-2 gap-6 bg-muted/20 p-6 rounded-3xl border border-border/20">
                                                             <div><p className="text-[10px] font-bold text-muted-foreground uppercase">Full Name</p><p className="font-black">{lead.full_name}</p></div>
@@ -261,7 +262,7 @@ export default function LeadsPage() {
                                                         </div>
 
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <Meta className="h-4 w-4" /> Meta Ads Technical Metadata
+                                                            <MetaIcon className="h-4 w-4" /> Meta Ads Technical Metadata
                                                         </h3>
                                                         <div className="bg-muted/20 p-6 rounded-3xl border border-border/20 space-y-4">
                                                             <div className="flex justify-between border-b border-border/20 pb-2"><p className="text-xs font-bold text-muted-foreground">Meta Lead ID</p><p className="text-xs font-black font-mono">{lead.meta_lead_id || 'N/A'}</p></div>
@@ -273,7 +274,7 @@ export default function LeadsPage() {
                                                     {/* Activity History */}
                                                     <div className="space-y-6">
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <History className="h-4 w-4" /> Operational History
+                                                            <HistoryIcon className="h-4 w-4" /> Operational History
                                                         </h3>
                                                         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                                             <ActivityLog leadId={lead.id} />
@@ -295,7 +296,7 @@ export default function LeadsPage() {
                 {!loading && filteredLeads.length === 0 && (
                     <div className="py-24 text-center">
                         <div className="h-20 w-20 bg-muted/20 rounded-full flex items-center justify-center mx-auto border border-dashed border-border/50 opacity-20 mb-6">
-                            <Users className="h-10 w-10" />
+                            <UsersIcon className="h-10 w-10" />
                         </div>
                         <h3 className="text-2xl font-black">Zero Leads Detected</h3>
                         <p className="text-muted-foreground mt-2 font-medium">Connect Meta Ads or Import manually to start your growth cycle.</p>
@@ -338,7 +339,7 @@ function ActivityLog({ leadId }: { leadId: string }) {
     );
 }
 
-function Facebook(props: any) {
+function FacebookIcon(props: any) {
     return (
         <svg
             {...props}
@@ -351,7 +352,7 @@ function Facebook(props: any) {
     );
 }
 
-function History(props: any) {
+function HistoryIcon(props: any) {
     return (
         <svg
             {...props}
@@ -372,7 +373,7 @@ function History(props: any) {
     );
 }
 
-function User(props: any) {
+function UserIcon(props: any) {
     return (
         <svg
             {...props}
@@ -392,7 +393,7 @@ function User(props: any) {
     );
 }
 
-function Users(props: any) {
+function UsersIcon(props: any) {
     return (
         <svg
             {...props}
@@ -412,4 +413,12 @@ function Users(props: any) {
             <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
     );
+}
+
+function MetaIcon(props: any) {
+    return (
+        <svg {...props} viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M15.111 11.231c-.961 0-1.74-.775-1.74-1.73s.779-1.729 1.74-1.729c.961 0 1.741.774 1.741 1.729s-.78 1.73-1.741 1.73zm-6.222 0c-.961 0-1.74-.775-1.74-1.73s.779-1.729 1.74-1.729c.961 0 1.741.774 1.741 1.729s-.78 1.73-1.741 1.73zm13.333-1.731c0-3.64-2.96-6.6-6.6-6.6-1.791 0-3.414.716-4.6 1.874-1.186-1.158-2.809-1.874-4.6-1.874-3.64 0-6.6 2.96-6.6 6.6 0 2.227 1.109 4.194 2.809 5.374V21l3.3-1.65 3.3 1.65V14.974c1.7-.1.3 3.3V21l3.3-1.65 3.3 1.65v-5.626c1.7-1.18 2.809-3.147 2.809-5.374z" />
+        </svg>
+    )
 }
