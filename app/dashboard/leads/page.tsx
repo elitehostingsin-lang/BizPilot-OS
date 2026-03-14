@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import {
     Search, Plus, Filter, Phone, Mail, MapPin,
     Calendar, MoreVertical, ExternalLink, UserCheck,
-    TrendingUp, AlertCircle, Meta, Download, RefreshCw
+    TrendingUp, AlertCircle, Download, RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
@@ -261,7 +261,7 @@ export default function LeadsPage() {
                                                         </div>
 
                                                         <h3 className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                            <Meta className="h-4 w-4" /> Meta Ads Technical Metadata
+                                                            <Facebook className="h-4 w-4" /> Meta Ads Technical Metadata
                                                         </h3>
                                                         <div className="bg-muted/20 p-6 rounded-3xl border border-border/20 space-y-4">
                                                             <div className="flex justify-between border-b border-border/20 pb-2"><p className="text-xs font-bold text-muted-foreground">Meta Lead ID</p><p className="text-xs font-black font-mono">{lead.meta_lead_id || 'N/A'}</p></div>

@@ -26,3 +26,6 @@ export async function createServerSupabaseClient() {
         }
     );
 }
+
+// Legacy alias for server routes
+export { createServerSupabaseClient as createClient };
