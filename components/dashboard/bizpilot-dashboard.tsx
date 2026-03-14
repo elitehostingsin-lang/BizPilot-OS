@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     LayoutDashboard, FileText, Receipt, Users, CheckSquare, FileCheck, DollarSign, ClipboardList, Globe, Code, Lock,
-    Plus, Copy, Download, MoreVertical, TrendingUp, AlertCircle, Check, X, Edit, Trash2, ChevronRight,
+    Plus, Copy, Download, MoreVertical, TrendingUp, TrendingDown, Wallet, Clock, AlertCircle, Check, X, Edit, Trash2, ChevronRight,
     LogOut, User, Settings, Bell, HelpCircle, MessageSquare, Mail, Shield, CreditCard, Calendar, Link as LinkIcon, Image as ImageIcon,
     BookOpen, MessageCircle, Search, ArrowUpRight, Loader2
 } from 'lucide-react';
@@ -156,6 +156,12 @@ const BizPilotDashboard = () => {
                     supabase.from('user_profiles').select('*').single(),
                     supabase.from('user_settings').select('*').single()
                 ]);
+
+                // Role & ID from Unified Login Flow
+                const savedRole = localStorage.getItem('bizpilot_role') as 'Owner' | 'Employee';
+                const savedEmpId = localStorage.getItem('bizpilot_employee_id');
+                if (savedRole) setActiveRole(savedRole);
+                if (savedEmpId) setActiveEmployeeId(savedEmpId);
 
                 if (leadsData) setLeads(leadsData);
                 if (tasksData) setTasks(tasksData);
@@ -927,9 +933,10 @@ const BizPilotDashboard = () => {
         ...(activeRole === 'Owner' ? [
             { id: 'invoices', label: 'Invoices', icon: Receipt },
         ] : []),
-        { id: 'crm', label: 'CRM', icon: Users },
+        { id: 'leads', label: 'Leads CRM', icon: Users },
         { id: 'tasks', label: 'Task Planner', icon: CheckSquare },
         ...(activeRole === 'Owner' ? [
+            { id: 'team', label: 'Team', icon: Shield },
             { id: 'proposals', label: 'Proposals', icon: FileCheck },
             { id: 'finance', label: 'Finance', icon: DollarSign },
             { id: 'forms', label: 'Forms', icon: ClipboardList },
@@ -1005,122 +1012,100 @@ const BizPilotDashboard = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
+                className="space-y-8"
             >
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Billing & Subscription</h1>
-                        <p className="text-muted-foreground mt-1">Manage your professional access</p>
+                        <h1 className="text-4xl font-extrabold tracking-tight">Access Control</h1>
+                        <p className="text-muted-foreground mt-2 font-medium">Manage your lifetime platform access.</p>
                     </div>
-                    <Badge variant="default" className="px-4 py-1.5 rounded-full text-sm font-semibold">
-                        Lifetime Pro Access
+                    <Badge variant="default" className="px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                        Lifetime Pilot Active
                     </Badge>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Card className="md:col-span-2 border-0 shadow-xl bg-white overflow-hidden">
-                        <div className="h-2 w-full bg-primary" />
-                        <CardHeader className="pb-4">
-                            <CardTitle className="text-xl">Subscription Status</CardTitle>
-                            <CardDescription>
-                                Thank you for being a part of BizPilot OS! Enjoy lifetime professional access.
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <Card className="lg:col-span-2 border border-border/50 shadow-2xl bg-card/50 backdrop-blur-xl overflow-hidden rounded-[2.5rem] relative">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] -z-10" />
+                        <CardHeader className="pb-6 border-b border-border/10">
+                            <CardTitle className="text-2xl font-black">Subscription Identity</CardTitle>
+                            <CardDescription className="font-medium text-muted-foreground">
+                                You are currently on the BizPilot OS Community Plan.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="flex items-center justify-between p-6 bg-primary/5 rounded-2xl border border-primary/10">
-                                <div className="space-y-1">
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">Current Plan</p>
-                                    <h4 className="text-2xl font-bold text-primary">
-                                        {isPaid ? 'Professional (Paid)' : "Free Evaluation"}
+                        <CardContent className="space-y-8 pt-8">
+                            <div className="flex flex-col md:flex-row items-center justify-between p-8 bg-muted/30 rounded-3xl border border-border/50 gap-6">
+                                <div className="space-y-2 text-center md:text-left">
+                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Active Protocol</p>
+                                    <h4 className="text-3xl font-black text-primary tracking-tighter">
+                                        Free Lifetime Access
                                     </h4>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                                        {isPaid ? 'Next Billing' : 'Trial Remaining'}
+                                <div className="text-center md:text-right">
+                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+                                        Status
                                     </p>
-                                    <h4 className={`text-2xl font-bold ${!isPaid && isExpired ? 'text-destructive' : 'text-foreground'}`}>
-                                        Lifetime Free
+                                    <h4 className="text-3xl font-black text-foreground tracking-tighter">
+                                        Verified
                                     </h4>
                                 </div>
                             </div>
 
-                            {!isPaid && (
-                                <div className="space-y-6 p-8 rounded-[2rem] bg-zinc-950 text-white relative overflow-hidden">
-                                    <div className="relative z-10 space-y-4">
-                                        <h4 className="text-2xl font-bold tracking-tight">Activate Professional Access</h4>
-                                        <p className="text-zinc-400 text-sm max-w-md">
-                                            {isExpired
-                                                ? "Your free trial has ended. Upgrade to the Paid plan to unlock CRM, Tasks, Content Builder, and more. Your Invoices remain free forever."
-                                                : "Unlock unlimited leads, advanced finance tracking, and priority support with the professional tier."
-                                            }
-                                        </p>
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-4xl font-black">$10</span>
-                                            <span className="text-zinc-500 text-sm">/ month</span>
-                                        </div>
-                                        <div className="flex flex-wrap gap-4">
-                                            <Button
-                                                onClick={handleDodoCheckout}
-                                                disabled={isSubmittingPayment}
-                                                className="bg-white text-black hover:bg-zinc-200 rounded-xl px-8 h-12 text-base font-bold transition-all active:scale-95"
-                                            >
-                                                {isSubmittingPayment ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Securing...
-                                                    </>
-                                                ) : (
-                                                    'Upgrade to Paid'
-                                                )}
-                                            </Button>
-
-                                            {(userProfile.joinDate === 'January 2024' || !userProfile.joinDate) && (
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={handleActivateTrial}
-                                                    disabled={isActivatingTrial}
-                                                    className="bg-zinc-900 text-white border-zinc-700 hover:bg-zinc-800 rounded-xl px-8 h-12 text-base font-bold transition-all"
-                                                >
-                                                    {isActivatingTrial ? 'Activating...' : 'Start 30-Day Free Trial'}
-                                                </Button>
-                                            )}
-                                        </div>
+                            <div className="space-y-6 p-8 rounded-[2rem] bg-foreground text-background relative overflow-hidden shadow-2xl">
+                                <div className="relative z-10 space-y-6">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-background/10 rounded-full border border-background/20">
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Growth Referral Program</span>
                                     </div>
-                                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                                    <h4 className="text-3xl font-black tracking-tighter leading-none">Help Us Grow, <br />Stay Free Forever</h4>
+                                    <p className="text-background/60 text-sm max-w-md font-medium leading-relaxed">
+                                        BizPilot OS is 100% free for those who help build our community. Simply share your experience on social media to keep your lifetime access active.
+                                    </p>
+                                    <div className="flex flex-wrap gap-4 pt-2">
+                                        <Button
+                                            className="bg-background text-foreground hover:opacity-90 rounded-2xl px-10 h-14 text-lg font-black transition-all active:scale-95 shadow-xl"
+                                        >
+                                            Share & Update Access
+                                        </Button>
+                                    </div>
                                 </div>
-                            )}
+                                <div className="absolute top-0 right-0 w-80 h-80 bg-primary/20 blur-[100px] -translate-y-1/2 translate-x-1/2" />
+                            </div>
 
-                            {isPaid && (
-                                <div className="flex items-center gap-3 p-4 bg-green-50 text-green-700 rounded-xl border border-green-100">
-                                    <Shield className="h-5 w-5" />
-                                    <p className="text-sm font-medium">Your connection is secured and subscription is managed via Dodo Payments.</p>
-                                </div>
-                            )}
+                            <div className="flex items-center gap-4 p-5 bg-primary/5 text-primary rounded-2xl border border-primary/10">
+                                <Shield className="h-6 w-6 shrink-0" />
+                                <p className="text-sm font-bold leading-relaxed">Your data is yours. We never sell user information. The platform is supported by community growth, not user data monetization.</p>
+                            </div>
                         </CardContent>
                     </Card>
 
-                    <Card className="border-0 shadow-xl bg-white overflow-hidden self-start">
-                        <div className="h-1 w-full bg-zinc-800" />
-                        <CardHeader>
-                            <CardTitle className="text-lg">Pro Benefits</CardTitle>
-                            <CardDescription>What you get with Pro</CardDescription>
+                    <Card className="border border-border/50 shadow-2xl bg-card/50 backdrop-blur-xl overflow-hidden rounded-[2.5rem] self-start group">
+                        <div className="h-1.5 w-full bg-primary" />
+                        <CardHeader className="pb-6">
+                            <CardTitle className="text-2xl font-black tracking-tight">Included Features</CardTitle>
+                            <CardDescription className="font-medium">Everything under your command</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <ul className="space-y-4">
+                            <ul className="space-y-5">
                                 {[
                                     'Unlimited CRM Leads',
                                     'Advanced Finance Tracking',
-                                    'Custom Proposal Templates',
-                                    'Website Audit Tools',
-                                    'Priority Email Support',
-                                    'Early Beta Features'
+                                    'Custom Proposal Engines',
+                                    'Website Performance Audit',
+                                    'Unlimited Content Assets',
+                                    'Ready-to-use Sales Scripts',
+                                    'Secure Vault Infrastructure'
                                 ].map((item, i) => (
-                                    <li key={i} className="flex items-center gap-3 text-sm">
-                                        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                                        {item}
+                                    <li key={i} className="flex items-center gap-4 text-sm group/item">
+                                        <div className="h-2 w-2 rounded-full bg-primary group-hover/item:scale-150 transition-transform shadow-[0_0_8px_var(--primary)]" />
+                                        <span className="font-bold opacity-80 group-hover/item:opacity-100 transition-opacity">{item}</span>
                                     </li>
                                 ))}
                             </ul>
+                            <div className="mt-10 p-5 rounded-2xl bg-muted/50 border border-border/50 text-center">
+                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-2">Support Protocol</p>
+                                <p className="text-sm font-bold">Community-first priority support active for all verified users.</p>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -1133,14 +1118,14 @@ const BizPilotDashboard = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="space-y-8"
+            className="space-y-10"
         >
-            <header>
+            <header className="space-y-2">
                 <div className="flex items-center gap-2 mb-1">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live System Active</span>
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_var(--primary)]" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">System Engine Active</span>
                 </div>
-                <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+                <h1 className="text-4xl font-extrabold text-foreground tracking-tight md:text-5xl">
                     {(() => {
                         const hour = new Date().getHours();
                         if (hour < 12) return "Good morning";
@@ -1148,104 +1133,81 @@ const BizPilotDashboard = () => {
                         return "Good evening";
                     })()}, {(userProfile?.name || 'User').split(' ')[0]}
                 </h1>
-                <p className="text-muted-foreground mt-1">
-                    You have <span className="text-foreground font-medium">{pendingTasks} tasks</span> and <span className="text-foreground font-medium">{draftInvoices} draft invoices</span> to review today.
+                <p className="text-muted-foreground font-medium text-lg">
+                    You have <span className="text-foreground font-bold">{pendingTasks} critical tasks</span> and <span className="text-foreground font-bold">{draftInvoices} pending invoices</span> to review.
                 </p>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="border-0 shadow-sm hover:translate-y-[-4px] transition-all duration-300 group">
-                    <CardHeader className="pb-2">
-                        <CardDescription className="text-xs font-medium uppercase tracking-wider">Total Revenue</CardDescription>
-                        <CardTitle className="text-3xl font-semibold mt-1">${totalRevenue.toLocaleString()}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center text-xs text-green-600 font-medium bg-green-50 w-fit px-2 py-1 rounded-full">
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            +12% this month
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-sm hover:translate-y-[-4px] transition-all duration-300 group">
-                    <CardHeader className="pb-2">
-                        <CardDescription className="text-xs font-medium uppercase tracking-wider">New Leads</CardDescription>
-                        <CardTitle className="text-3xl font-semibold mt-1">{totalLeads}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-xs text-muted-foreground flex items-center">
-                            <Users className="h-3 w-3 mr-1" />
-                            3 new today
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-sm hover:translate-y-[-4px] transition-all duration-300 group">
-                    <CardHeader className="pb-2">
-                        <CardDescription className="text-xs font-medium uppercase tracking-wider">Pending Tasks</CardDescription>
-                        <CardTitle className="text-3xl font-semibold mt-1">{pendingTasks}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-xs text-muted-foreground flex items-center">
-                            <CheckSquare className="h-3 w-3 mr-1" />
-                            5 due soon
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-sm hover:translate-y-[-4px] transition-all duration-300 group">
-                    <CardHeader className="pb-2">
-                        <CardDescription className="text-xs font-medium uppercase tracking-wider">Draft Invoices</CardDescription>
-                        <CardTitle className="text-3xl font-semibold mt-1">{draftInvoices}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-xs text-amber-600 font-medium flex items-center bg-amber-50 w-fit px-2 py-1 rounded-full">
-                            <AlertCircle className="h-3 w-3 mr-1" />
-                            Needs attention
-                        </div>
-                    </CardContent>
-                </Card>
+                {[
+                    { label: 'Total Revenue', value: `$${totalRevenue.toLocaleString()}`, trend: '+12% this month', icon: TrendingUp, color: 'text-primary' },
+                    { label: 'New Leads', value: totalLeads, trend: '3 new today', icon: Users, color: 'text-muted-foreground' },
+                    { label: 'Pending Tasks', value: pendingTasks, trend: '5 due soon', icon: CheckSquare, color: 'text-muted-foreground' },
+                    { label: 'Draft Invoices', value: draftInvoices, trend: 'Needs attention', icon: AlertCircle, color: 'text-destructive' },
+                ].map((stat, i) => (
+                    <Card key={i} className="border border-border/50 shadow-xl hover:shadow-2xl hover:border-primary/50 transition-all duration-500 group rounded-[2rem] bg-card/50 backdrop-blur-sm overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl -z-10 group-hover:bg-primary/10 transition-colors" />
+                        <CardHeader className="pb-2">
+                            <CardDescription className="text-xs font-black uppercase tracking-widest text-muted-foreground">{stat.label}</CardDescription>
+                            <CardTitle className="text-4xl font-extrabold mt-1 tracking-tighter">{stat.value}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className={`flex items-center text-xs font-bold ${stat.color} bg-muted/50 w-fit px-3 py-1.5 rounded-full border border-border/50`}>
+                                <stat.icon className="h-3.5 w-3.5 mr-1.5" />
+                                {stat.trend}
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card className="border border-border/50 shadow-2xl rounded-[2.5rem] bg-card/40 backdrop-blur-xl overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] -z-10" />
+                    <CardHeader className="pb-6">
+                        <CardTitle className="text-2xl font-black tracking-tight">Quick Commands</CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-3">
-                        <Button variant="ghost" className="w-full justify-start rounded-xl" onClick={() => setActiveView('invoices')}>
-                            <Receipt className="mr-3 h-4 w-4" />
-                            New {(userProfile?.company || 'Business').split(' ')[0]} Invoice
-                        </Button>
-                        <Button variant="ghost" className="w-full justify-start rounded-xl" onClick={() => setActiveView('crm')}>
-                            <Users className="mr-3 h-4 w-4" />
-                            Manage CRM Leads
-                        </Button>
-                        <Button variant="ghost" className="w-full justify-start rounded-xl" onClick={() => setActiveView('tasks')}>
-                            <CheckSquare className="mr-3 h-4 w-4" />
-                            Optimize Workflow
-                        </Button>
-                        <Button variant="ghost" className="w-full justify-start rounded-xl" onClick={() => setActiveView('content')}>
-                            <FileText className="mr-3 h-4 w-4" />
-                            Build Content Assets
-                        </Button>
+                    <CardContent className="space-y-4">
+                        {[
+                            { label: `New ${(userProfile?.company || 'Business').split(' ')[0]} Invoice`, icon: Receipt, view: 'invoices' },
+                            { label: 'Manage CRM Leads', icon: Users, view: 'crm' },
+                            { label: 'Optimize Workflow', icon: CheckSquare, view: 'tasks' },
+                            { label: 'Build Content Assets', icon: FileText, view: 'content' },
+                        ].map((action, i) => (
+                            <Button
+                                key={i}
+                                variant="ghost"
+                                className="w-full justify-start rounded-2xl h-14 px-6 hover:bg-primary hover:text-primary-foreground font-bold text-lg transition-all duration-300 shadow-sm hover:shadow-xl active:scale-95 group"
+                                onClick={() => setActiveView(action.view)}
+                            >
+                                <action.icon className="mr-4 h-6 w-6 group-hover:scale-110 transition-transform" />
+                                {action.label}
+                            </Button>
+                        ))}
                     </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
+                <Card className="border border-border/50 shadow-2xl rounded-[2.5rem] bg-card/40 backdrop-blur-xl overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] -z-10" />
+                    <CardHeader className="pb-6">
+                        <CardTitle className="text-2xl font-black tracking-tight">Recent Intelligence</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {activities.map((activity) => (
-                                <div key={activity.id} className="flex items-start gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                        <div className="space-y-6">
+                            {activities.map((activity, i) => (
+                                <motion.div
+                                    key={activity.id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="flex items-start gap-5 p-4 rounded-2xl bg-muted/30 border border-border/10 hover:border-primary/20 transition-all group"
+                                >
+                                    <div className="w-3 h-3 rounded-full bg-primary mt-1.5 shadow-[0_0_8px_var(--primary)] group-hover:scale-125 transition-transform" />
                                     <div className="flex-1">
-                                        <p className="text-sm text-foreground">{activity.description}</p>
-                                        <p className="text-xs text-muted-foreground">{activity.time}</p>
+                                        <p className="text-base font-bold text-foreground leading-tight">{activity.description}</p>
+                                        <p className="text-xs text-muted-foreground font-black uppercase tracking-widest mt-1 opacity-70">{activity.time}</p>
                                     </div>
-                                </div>
+                                </motion.div>
                             ))}
                         </div>
                     </CardContent>
@@ -1673,268 +1635,372 @@ const BizPilotDashboard = () => {
         </div>
     );
 
-    const renderCRM = () => (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-semibold">CRM</h1>
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button className="rounded-xl">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Lead
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Add New Lead</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Name</Label>
-                                <Input
-                                    placeholder="Enter name"
-                                    className="rounded-xl"
-                                    value={newLead.name || ''}
-                                    onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Contact</Label>
-                                <Input
-                                    placeholder="Email address"
-                                    className="rounded-xl"
-                                    value={newLead.contact || ''}
-                                    onChange={(e) => setNewLead({ ...newLead, contact: e.target.value })}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Source</Label>
-                                <Select onValueChange={(val) => setNewLead({ ...newLead, source: val })}>
-                                    <SelectTrigger className="rounded-xl">
-                                        <SelectValue placeholder="Select source" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="linkedin">LinkedIn</SelectItem>
-                                        <SelectItem value="referral">Referral</SelectItem>
-                                        <SelectItem value="website">Website</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Notes</Label>
-                                <Textarea
-                                    placeholder="Add notes..."
-                                    className="rounded-xl"
-                                    value={newLead.notes || ''}
-                                    onChange={(e) => setNewLead({ ...newLead, notes: e.target.value })}
-                                />
-                            </div>
-                            <Button className="w-full rounded-xl" onClick={handleAddLead}>Add Lead</Button>
+    const renderLeads = () => {
+        const [searchQuery, setSearchQuery] = useState('');
+        const [statusFilter, setStatusFilter] = useState('all');
+        const [viewingLead, setViewingLead] = useState<Lead | null>(null);
+
+
+        const filteredLeads = leads.filter(lead => {
+            const matchesSearch = lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                lead.contact.toLowerCase().includes(searchQuery.toLowerCase());
+            const matchesStatus = statusFilter === 'all' || lead.status.toLowerCase() === statusFilter.toLowerCase();
+            const matchesRole = activeRole === 'Owner' || lead.assignedTo === activeEmployeeId;
+            return matchesSearch && matchesStatus && matchesRole;
+        });
+
+        const stats = {
+            total: leads.length,
+            new: leads.filter(l => l.status === 'New').length,
+            converted: leads.filter(l => l.status === 'Closed').length,
+            rate: leads.length > 0 ? Math.round((leads.filter(l => l.status === 'Closed').length / leads.length) * 100) : 0
+        };
+
+        return (
+            <div className="space-y-8">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Lead Intelligence</span>
                         </div>
-                    </DialogContent>
-                </Dialog>
-            </div>
+                        <h1 className="text-4xl font-extrabold tracking-tight">Leads Central</h1>
+                        <p className="text-muted-foreground font-medium">Capture, track, and convert leads from Meta Ads and other channels.</p>
+                    </div>
 
-            <div className="flex gap-2 bg-muted/30 p-1 w-fit rounded-xl">
-                {['All', 'New', 'Follow-up', 'Closed'].map((tab) => (
-                    <Button
-                        key={tab}
-                        variant={crmFilter === tab ? "secondary" : "ghost"}
-                        size="sm"
-                        className={`rounded-lg h-8 px-4 text-xs ${crmFilter === tab ? "bg-white shadow-sm" : ""}`}
-                        onClick={() => setCrmFilter(tab)}
-                    >
-                        {tab}
-                    </Button>
-                ))}
-            </div>
+                    <div className="flex items-center gap-3">
+                        <Button variant="outline" className="rounded-2xl h-11 px-6 font-bold border-border/50 bg-background/40 backdrop-blur-md">
+                            <Download className="h-4 w-4 mr-2" /> Export
+                        </Button>
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button className="rounded-2xl h-11 px-6 font-bold shadow-lg shadow-primary/20 gap-2">
+                                    <Plus className="h-5 w-5" /> Manual Intel
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="rounded-[2.5rem] border-border bg-popover/90 backdrop-blur-xl max-w-lg">
+                                <DialogHeader>
+                                    <DialogTitle className="text-2xl font-black tracking-tight">Add New Lead</DialogTitle>
+                                    <DialogDescription className="font-medium">Enter lead information manually when not captured via automated triggers.</DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 pt-4">
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Full Name</Label>
+                                        <Input
+                                            placeholder="Lead Name"
+                                            className="rounded-xl border-border bg-muted/50 h-11"
+                                            value={newLead.name || ''}
+                                            onChange={(e) => setNewLead({ ...newLead, name: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Contact Info</Label>
+                                            <Input
+                                                placeholder="Email or Phone"
+                                                className="rounded-xl border-border bg-muted/50 h-11"
+                                                value={newLead.contact || ''}
+                                                onChange={(e) => setNewLead({ ...newLead, contact: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Source</Label>
+                                            <Select onValueChange={(val) => setNewLead({ ...newLead, source: val })}>
+                                                <SelectTrigger className="rounded-xl border-border bg-muted/50 h-11">
+                                                    <SelectValue placeholder="Social, Search, etc." />
+                                                </SelectTrigger>
+                                                <SelectContent className="rounded-xl border-border bg-popover/90 backdrop-blur-lg">
+                                                    <SelectItem value="meta">Meta Ads</SelectItem>
+                                                    <SelectItem value="linkedin">LinkedIn</SelectItem>
+                                                    <SelectItem value="google">Google Ads</SelectItem>
+                                                    <SelectItem value="referral">Direct Referral</SelectItem>
+                                                    <SelectItem value="website">Organic Website</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Initial Intel / Notes</Label>
+                                        <Textarea
+                                            placeholder="Context about the lead..."
+                                            className="rounded-xl border-border bg-muted/50 min-h-[100px]"
+                                            value={newLead.notes || ''}
+                                            onChange={(e) => setNewLead({ ...newLead, notes: e.target.value })}
+                                        />
+                                    </div>
+                                    <Button className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20 mt-2" onClick={handleAddLead}>
+                                        Commit Lead to CRM
+                                    </Button>
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                </header>
 
-            <Card className="border-0 shadow-sm">
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="hover:bg-transparent">
-                                <TableHead>Name</TableHead>
-                                <TableHead>Quality</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Assigned To</TableHead>
-                                <TableHead>Source</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Follow-up</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {leads
-                                .filter(l => crmFilter === 'All' || l.status === crmFilter)
-                                .filter(l => activeRole === 'Owner' || l.assignedTo === activeEmployeeId)
-                                .map((lead) => (
-                                    <TableRow key={lead.id} className="hover:bg-muted/50">
-                                        <TableCell className="font-medium">{lead.name}</TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={`rounded-full ${lead.quality === 'Hot' ? 'text-red-600 border-red-600 bg-red-50' :
-                                                    lead.quality === 'Warm' ? 'text-yellow-600 border-yellow-600 bg-yellow-50' :
-                                                        'text-blue-600 border-blue-600 bg-blue-50'
-                                                    }`}
-                                            >
-                                                {lead.quality}
-                                            </Badge>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    {[
+                        { label: 'Total Influx', value: stats.total, icon: Users, color: 'text-primary', bg: 'bg-primary/5' },
+                        { label: 'New Entries', value: stats.new, icon: Clock, color: 'text-blue-500', bg: 'bg-emerald-500/5' },
+                        { label: 'Closed Deals', value: stats.converted, icon: CheckSquare, color: 'text-emerald-500', bg: 'bg-success/5' },
+                        { label: 'Conversion', value: `${stats.rate}%`, icon: TrendingUp, color: 'text-amber-500', bg: 'bg-amber-500/5' },
+                    ].map((stat, i) => (
+                        <Card key={i} className="border border-border/50 shadow-xl bg-card/40 backdrop-blur-xl overflow-hidden rounded-[1.5rem] relative">
+                            <CardHeader className="pb-2">
+                                <CardDescription className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</CardDescription>
+                                <CardTitle className="text-3xl font-extrabold mt-1 tracking-tighter">{stat.value}</CardTitle>
+                            </CardHeader>
+                            <div className={`absolute top-0 right-0 p-4 ${stat.color} opacity-20`}>
+                                <stat.icon className="h-8 w-8" />
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+
+                <Card className="border border-border/50 shadow-2xl bg-card/40 backdrop-blur-xl overflow-hidden rounded-[2.5rem]">
+                    <div className="p-6 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-muted/10">
+                        <div className="relative flex-1 max-w-md group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input
+                                placeholder="Search leads by name or contact..."
+                                className="rounded-xl border-border bg-background/50 pl-11 h-11 focus-visible:ring-primary/20 transition-all font-medium"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex gap-2">
+                            {['all', 'new', 'Follow-up', 'Closed'].map((status) => (
+                                <Button
+                                    key={status}
+                                    variant={statusFilter === status ? "default" : "outline"}
+                                    size="sm"
+                                    className={`rounded-xl h-10 px-4 font-bold capitalize ${statusFilter === status ? "shadow-lg shadow-primary/20" : "border-border/50 bg-background/40"}`}
+                                    onClick={() => setStatusFilter(status)}
+                                >
+                                    {status}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="hover:bg-transparent border-border/50">
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 pl-8 text-muted-foreground">Identity</TableHead>
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 text-muted-foreground">Quality</TableHead>
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 text-muted-foreground">Contact</TableHead>
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 text-muted-foreground">Deployment</TableHead>
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 text-muted-foreground">Source</TableHead>
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 text-muted-foreground">Protocol</TableHead>
+                                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-5 pr-8 text-right text-muted-foreground">Operations</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredLeads.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="h-64 text-center">
+                                            <div className="flex flex-col items-center justify-center space-y-3 opacity-50">
+                                                <Users className="h-12 w-12 text-muted-foreground" />
+                                                <p className="font-bold text-lg">No leads detected in current sector</p>
+                                                <p className="text-sm font-medium">Try adjusting your filters or add a new lead manually.</p>
+                                            </div>
                                         </TableCell>
-                                        <TableCell>{lead.contact}</TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2">
+                                    </TableRow>
+                                ) : (
+                                    filteredLeads.map((lead) => (
+                                        <TableRow key={lead.id} className="hover:bg-primary/5 transition-colors border-border/10 group">
+                                            <TableCell className="py-4 pl-8">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-xs shadow-inner">
+                                                        {lead.name.split(' ').map(n => n[0]).join('')}
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-sm tracking-tight group-hover:text-primary transition-colors">{lead.name}</p>
+                                                        <p className="text-[10px] font-medium text-muted-foreground/70 uppercase">Acquired {new Date().toLocaleDateString()}</p>
+                                                    </div>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={`rounded-full text-[10px] font-black uppercase tracking-widest py-0 px-2 border-none ${lead.quality === 'Hot' ? 'bg-red-500/10 text-red-600' :
+                                                        lead.quality === 'Warm' ? 'bg-amber-500/10 text-amber-600' :
+                                                            'bg-blue-500/10 text-blue-600'
+                                                        }`}
+                                                >
+                                                    {lead.quality || 'Standard'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="font-medium text-xs text-muted-foreground">{lead.contact}</TableCell>
+                                            <TableCell>
                                                 <Select
+                                                    disabled={activeRole !== 'Owner'}
                                                     value={lead.assignedTo || ''}
-                                                    onValueChange={(val) => {
+                                                    onValueChange={async (val) => {
                                                         const updatedLeads = leads.map(l => l.id === lead.id ? { ...l, assignedTo: val } : l);
                                                         setLeads(updatedLeads);
                                                         const empName = userProfile.employees.find(e => e.id === val)?.name;
-                                                        addActivity('crm', `Lead ${lead.name} assigned to ${empName}`);
+                                                        addActivity('crm', `Lead ${lead.name} deployed to ${empName}`);
+
+                                                        // Automated connectivity: Create a follow-up task
+                                                        const newTaskObj: Task = {
+                                                            id: Date.now().toString(),
+                                                            title: `Follow up with ${lead.name}`,
+                                                            status: 'To-Do',
+                                                            priority: lead.quality === 'Hot' ? 'High' : (lead.quality === 'Warm' ? 'Medium' : 'Low'),
+                                                            dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Tomorrow
+                                                            subtasks: [],
+                                                            assignedTo: val,
+                                                            history: [`Auto-created via lead assignment for ${lead.name}`]
+                                                        };
+                                                        setTasks(prev => [newTaskObj, ...prev]);
+                                                        await syncToSupabase('tasks', newTaskObj);
+                                                        await syncToSupabase('leads', { ...lead, assignedTo: val });
                                                     }}
                                                 >
-                                                    <SelectTrigger className="h-8 w-[140px] rounded-lg text-xs bg-muted/50 border-0">
-                                                        <SelectValue placeholder="Assign To" />
+                                                    <SelectTrigger className="h-9 w-[150px] rounded-xl text-[11px] font-bold bg-muted/30 border-none shadow-none focus:ring-0">
+                                                        <SelectValue placeholder="Unassigned" />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="rounded-2xl border-border bg-popover/90 backdrop-blur-lg">
                                                         {userProfile.employees.map(emp => (
-                                                            <SelectItem key={emp.id} value={emp.id} className="text-xs">
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center text-[8px] font-bold">
-                                                                        {(emp.name || 'EE').slice(0, 2).toUpperCase()}
-                                                                    </div>
-                                                                    {emp.name}
-                                                                </div>
+                                                            <SelectItem key={emp.id} value={emp.id} className="rounded-xl font-bold py-2">
+                                                                {emp.name}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>{lead.source}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="secondary" className="rounded-full">{lead.status}</Badge>
-                                        </TableCell>
-                                        <TableCell>{lead.followUpDate}</TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 rounded-lg text-blue-600 hover:bg-blue-50"
-                                                    onClick={() => window.location.href = `mailto:${lead.contact}`}
-                                                    title="Send Email"
-                                                >
-                                                    <Mail className="h-3.5 w-3.5" />
-                                                </Button>
-
-                                                <Dialog>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    {lead.source?.toLowerCase().includes('meta') ? <Globe className="h-3 w-3 text-blue-500" /> : <LinkIcon className="h-3 w-3 text-muted-foreground" />}
+                                                    <span className="text-[11px] font-bold uppercase tracking-widest opacity-70">{lead.source || 'Direct'}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-tight py-0.5 px-3 bg-muted/50 border border-border/50">{lead.status}</Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right pr-8">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-all" onClick={() => window.location.href = `mailto:${lead.contact.includes('@') ? lead.contact : ''}`}>
+                                                        <Mail className="h-4 w-4" />
+                                                    </Button>
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="sm" className="h-8 w-8 rounded-lg">
+                                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-muted transition-all">
                                                                 <MoreVertical className="h-4 w-4" />
                                                             </Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DialogTrigger asChild>
-                                                                <DropdownMenuItem onSelect={(e) => {
-                                                                    e.preventDefault();
-                                                                    setEditingLead(lead);
-                                                                }}>
-                                                                    <Edit className="mr-2 h-4 w-4" />
-                                                                    Edit Lead
-                                                                </DropdownMenuItem>
-                                                            </DialogTrigger>
-                                                            <DropdownMenuItem
-                                                                className="text-destructive"
-                                                                onClick={() => setLeads(leads.filter(l => l.id !== lead.id))}
-                                                            >
-                                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                                Delete
+                                                        <DropdownMenuContent align="end" className="rounded-2xl border-border bg-popover/90 backdrop-blur-lg w-48 p-2">
+                                                            <DropdownMenuItem onClick={() => setViewingLead(lead)} className="rounded-xl font-bold py-3 px-4">
+                                                                <Users className="h-4 w-4 mr-2 opacity-70" /> View Full Intel
                                                             </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => setEditingLead(lead)} className="rounded-xl font-bold py-3 px-4">
+                                                                <Edit className="h-4 w-4 mr-2 opacity-70" /> Modify Profile
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuSeparator className="bg-border/50 mx-2" />
+                                                            {activeRole === 'Owner' && (
+                                                                <DropdownMenuItem
+                                                                    onClick={async () => {
+                                                                        const updatedLeads = leads.filter(l => l.id !== lead.id);
+                                                                        setLeads(updatedLeads);
+                                                                        addActivity('crm', `Lead terminated: ${lead.name}`);
+                                                                        // Add logic to delete from Supabase if needed
+                                                                    }}
+                                                                    className="rounded-xl font-bold py-3 px-4 text-destructive focus:text-destructive"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4 mr-2 opacity-70" /> Terminate Entry
+                                                                </DropdownMenuItem>
+                                                            )}
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </Card>
 
-                                                    <DialogContent className="max-w-md">
-                                                        <DialogHeader>
-                                                            <DialogTitle>Edit Lead: {lead.name}</DialogTitle>
-                                                        </DialogHeader>
-                                                        {editingLead && (
-                                                            <div className="space-y-4 pt-4">
-                                                                <div className="space-y-2">
-                                                                    <Label>Lead Name</Label>
-                                                                    <Input
-                                                                        value={editingLead.name}
-                                                                        onChange={(e) => setEditingLead({ ...editingLead, name: e.target.value })}
-                                                                        className="rounded-xl"
-                                                                    />
-                                                                </div>
-                                                                <div className="space-y-2">
-                                                                    <Label>Contact Info</Label>
-                                                                    <Input
-                                                                        value={editingLead.contact}
-                                                                        onChange={(e) => setEditingLead({ ...editingLead, contact: e.target.value })}
-                                                                        className="rounded-xl"
-                                                                    />
-                                                                </div>
-                                                                <div className="grid grid-cols-2 gap-4">
-                                                                    <div className="space-y-2">
-                                                                        <Label>Status</Label>
-                                                                        <Select
-                                                                            value={editingLead.status}
-                                                                            onValueChange={(val) => setEditingLead({ ...editingLead, status: val as any })}
-                                                                        >
-                                                                            <SelectTrigger className="rounded-xl focus:ring-primary">
-                                                                                <SelectValue />
-                                                                            </SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectItem value="New">New</SelectItem>
-                                                                                <SelectItem value="Follow-up">Follow-up</SelectItem>
-                                                                                <SelectItem value="Closed">Closed</SelectItem>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </div>
-                                                                    <div className="space-y-2">
-                                                                        <Label>Quality</Label>
-                                                                        <Select
-                                                                            value={editingLead.quality}
-                                                                            onValueChange={(val) => setEditingLead({ ...editingLead, quality: val as any })}
-                                                                        >
-                                                                            <SelectTrigger className="rounded-xl focus:ring-primary">
-                                                                                <SelectValue />
-                                                                            </SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectItem value="Hot">Hot 🔥</SelectItem>
-                                                                                <SelectItem value="Warm">Warm ⚡</SelectItem>
-                                                                                <SelectItem value="Cold">Cold ❄️</SelectItem>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="space-y-2">
-                                                                    <Label>Notes</Label>
-                                                                    <Textarea
-                                                                        value={editingLead.notes}
-                                                                        onChange={(e) => setEditingLead({ ...editingLead, notes: e.target.value })}
-                                                                        className="rounded-xl min-h-[80px]"
-                                                                    />
-                                                                </div>
-                                                                <Button className="w-full rounded-xl" onClick={handleUpdateLead}>Save Updates</Button>
-                                                            </div>
-                                                        )}
-                                                    </DialogContent>
-                                                </Dialog>
+                {/* Lead Intelligence Dialog */}
+                <Dialog open={!!viewingLead} onOpenChange={(open) => !open && setViewingLead(null)}>
+                    <DialogContent className="rounded-[2.5rem] border-border bg-popover/90 backdrop-blur-xl max-w-2xl">
+                        {viewingLead && (
+                            <>
+                                <DialogHeader>
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="w-16 h-16 rounded-3xl bg-primary/10 flex items-center justify-center text-primary font-black text-2xl shadow-inner">
+                                            {viewingLead.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div>
+                                            <DialogTitle className="text-3xl font-black tracking-tight">{viewingLead.name}</DialogTitle>
+                                            <p className="text-muted-foreground font-medium">{viewingLead.contact}</p>
+                                        </div>
+                                    </div>
+                                </DialogHeader>
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="p-4 rounded-3xl bg-muted/30 border border-border/50">
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Status</p>
+                                            <Badge className="rounded-full">{viewingLead.status}</Badge>
+                                        </div>
+                                        <div className="p-4 rounded-3xl bg-muted/30 border border-border/50">
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Quality</p>
+                                            <p className="font-bold text-lg">{viewingLead.quality}</p>
+                                        </div>
+                                        <div className="p-4 rounded-3xl bg-muted/30 border border-border/50">
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Primary Source</p>
+                                            <p className="font-bold text-lg capitalize">{viewingLead.source}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Activity Intel</h4>
+                                        <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {(viewingLead.history || []).length === 0 ? (
+                                                <p className="text-sm opacity-50 italic">No historical data recorded yet.</p>
+                                            ) : (
+                                                viewingLead.history.map((h, i) => (
+                                                    <div key={i} className="flex justify-between items-center p-3 rounded-xl bg-background/40 border border-border/30">
+                                                        <p className="text-xs font-bold">{h.action}</p>
+                                                        <p className="text-[10px] opacity-50 font-medium">{h.time}</p>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="p-6 rounded-3xl bg-primary/5 border border-primary/10">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-primary mb-2">Meta Ads Metadata</h4>
+                                        {viewingLead.source === 'meta' ? (
+                                            <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-xs font-medium">
+                                                <span className="opacity-60">Created Time</span>
+                                                <span className="text-right">{new Date().toLocaleString()}</span>
+                                                <span className="opacity-60">Ad Name</span>
+                                                <span className="text-right">Premium Expansion Campaign</span>
+                                                <span className="opacity-60">Form Name</span>
+                                                <span className="text-right">High Intent Lead Form</span>
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </div>
-    );
+                                        ) : (
+                                            <p className="text-xs opacity-50 italic">Captured via manual entry or other channel.</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex gap-3">
+                                        <Button className="flex-1 rounded-2xl h-12 font-bold" onClick={() => setViewingLead(null)}>Close Intel</Button>
+                                        <Button variant="outline" className="rounded-2xl h-12 font-bold" onClick={() => {
+                                            setEditingLead(viewingLead);
+                                            setViewingLead(null);
+                                        }}>Modify Entry</Button>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </DialogContent>
+                </Dialog>
+            </div>
+        );
+    };
 
     const renderTasks = () => (
         <div className="space-y-6">
@@ -2035,15 +2101,23 @@ const BizPilotDashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {['To-Do', 'In Progress', 'Done'].map((status) => (
-                    <Card key={status} className="border-0 shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="text-lg">{status}</CardTitle>
+                    <Card key={status} className="border-border/50 shadow-xl shadow-primary/5 bg-background/40 backdrop-blur-md">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+                                {status}
+                                <Badge variant="secondary" className="rounded-full text-[10px] bg-primary/10 text-primary border-none">
+                                    {tasks.filter(t => t.status === status).length}
+                                </Badge>
+                            </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-4 px-3">
                             {tasks.filter(t => t.status === status).map((task) => (
-                                <div
+                                <motion.div
                                     key={task.id}
-                                    className="p-4 rounded-xl bg-muted/50 space-y-2 cursor-pointer hover:bg-muted transition-colors group relative"
+                                    layout
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-4 rounded-2xl bg-background border border-border/50 shadow-sm space-y-3 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all group relative"
                                     onClick={() => {
                                         const statuses: Task['status'][] = ['To-Do', 'In Progress', 'Done'];
                                         const nextStatus = statuses[(statuses.indexOf(task.status) + 1) % 3];
@@ -2109,7 +2183,7 @@ const BizPilotDashboard = () => {
                                     >
                                         <X className="h-3 w-3 text-muted-foreground" />
                                     </button>
-                                </div>
+                                </motion.div>
                             ))}
                         </CardContent>
                     </Card>
@@ -2210,53 +2284,59 @@ const BizPilotDashboard = () => {
                     </CardContent>
                 </Card>
 
-                <Card className="border-0 shadow-sm overflow-hidden">
+                <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl">
                     <CardHeader>
-                        <CardTitle className="text-lg">Recent Proposals</CardTitle>
+                        <CardTitle className="text-lg font-semibold">Recent Proposals</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {proposals.length === 0 ? (
                             <div className="py-12 text-center text-muted-foreground">
                                 <FileCheck className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                                <p>No proposals yet. Start drafting one to see it here.</p>
+                                <p className="text-sm">No proposals yet. Start drafting one to see it here.</p>
                             </div>
                         ) : (
                             <div className="space-y-4">
                                 {proposals.map((p) => (
-                                    <div key={p.id} className="p-4 rounded-xl border border-border/40 hover:bg-muted/30 transition-colors">
-                                        <div className="flex justify-between items-start mb-2">
+                                    <motion.div
+                                        key={p.id}
+                                        initial={{ opacity: 0, scale: 0.98 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        className="p-5 rounded-2xl border border-border/50 bg-background/50 hover:border-primary/50 hover:shadow-lg transition-all"
+                                    >
+                                        <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <h3 className="font-medium text-sm line-clamp-1">{p.title || `Proposal for ${p.clientName}`}</h3>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-[10px] text-muted-foreground">v{p.version}</span>
-                                                    <span className="text-[10px] text-muted-foreground">•</span>
-                                                    <span className="text-[10px] text-muted-foreground">{p.date}</span>
+                                                <h3 className="font-semibold text-sm line-clamp-1">{p.title || `Proposal for ${p.clientName}`}</h3>
+                                                <div className="flex items-center gap-2 mt-1.5">
+                                                    <Badge variant="secondary" className="text-[10px] bg-primary/5 text-primary border-none">v{p.version}</Badge>
+                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                                        <Clock className="h-3 w-3" /> {p.date}
+                                                    </span>
                                                 </div>
                                             </div>
-                                            <Badge variant={p.status === 'Approved' ? 'default' : p.status === 'Sent' ? 'outline' : 'secondary'} className="text-[10px] rounded-full">
+                                            <Badge variant={p.status === 'Approved' ? 'default' : p.status === 'Sent' ? 'outline' : 'secondary'} className="text-[10px] rounded-full px-3">
                                                 {p.status}
                                             </Badge>
                                         </div>
-                                        <div className="flex gap-2 mt-3">
-                                            <Button variant="ghost" size="sm" className="h-8 text-xs rounded-lg" onClick={() => handleExportPDF({ clientName: p.clientName, amount: 0, currency: userSettings.currency, items: [{ description: p.introduction.substring(0, 100) + '...', qty: 1, price: 0 }] } as any)}>
-                                                <Download className="h-3 w-3 mr-1" /> View PDF
+                                        <div className="flex gap-2 mt-4 pt-4 border-t border-border/20">
+                                            <Button variant="ghost" size="sm" className="h-9 text-xs rounded-xl hover:bg-primary/5 transition-colors" onClick={() => handleExportPDF({ clientName: p.clientName, amount: 0, currency: userSettings.currency, items: [{ description: p.introduction.substring(0, 100) + '...', qty: 1, price: 0 }] } as any)}>
+                                                <Download className="h-3.5 w-3.5 mr-2" /> PDF
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-8 text-xs rounded-lg text-primary hover:bg-primary/5" onClick={() => {
+                                            <Button variant="ghost" size="sm" className="h-9 text-xs rounded-xl text-primary hover:bg-primary/5 transition-colors" onClick={() => {
                                                 const newVersion = { ...p, id: Date.now().toString(), date: new Date().toLocaleDateString(), version: (p.version || 1) + 1, status: 'Draft' as const };
                                                 setProposals([newVersion, ...proposals]);
                                                 addActivity('proposals', `New version (v${newVersion.version}) created for ${p.title}`);
                                             }}>
-                                                <TrendingUp className="h-3 w-3 mr-1" /> New Version
+                                                <TrendingUp className="h-3.5 w-3.5 mr-2" /> Version
                                             </Button>
-                                            <Button variant="ghost" size="sm" className="h-8 text-xs rounded-lg text-muted-foreground" onClick={() => {
+                                            <Button variant="ghost" size="sm" className="h-9 text-xs rounded-xl text-muted-foreground hover:bg-muted transition-colors ml-auto" onClick={() => {
                                                 const duplicated = { ...p, id: Date.now().toString(), title: `${p.title} (Copy)`, date: new Date().toLocaleDateString(), status: 'Draft' as const, version: 1 };
                                                 setProposals([duplicated, ...proposals]);
                                                 addActivity('proposals', `Proposal "${p.title}" duplicated`);
                                             }}>
-                                                <Copy className="h-3 w-3 mr-1" /> Duplicate
+                                                <Copy className="h-3.5 w-3.5 mr-2" /> Copy
                                             </Button>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
                             </div>
                         )}
@@ -2328,49 +2408,55 @@ const BizPilotDashboard = () => {
                 </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <Card className="border-0 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <TrendingUp className="h-12 w-12 text-green-500" />
+                    </div>
                     <CardHeader className="pb-3">
-                        <CardDescription className="text-sm">Total Income</CardDescription>
-                        <CardTitle className="text-3xl font-medium text-green-600">{currencySymbol}{totalRevenue.toLocaleString()}</CardTitle>
+                        <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Income</CardDescription>
+                        <CardTitle className="text-3xl font-bold text-green-600 mt-1">{currencySymbol}{totalRevenue.toLocaleString()}</CardTitle>
                     </CardHeader>
                 </Card>
 
-                <Card className="border-0 shadow-sm">
+                <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <TrendingDown className="h-12 w-12 text-red-500" />
+                    </div>
                     <CardHeader className="pb-3">
-                        <CardDescription className="text-sm">Total Expenses</CardDescription>
-                        <CardTitle className="text-3xl font-medium text-red-600">{currencySymbol}{totalExpenses.toLocaleString()}</CardTitle>
+                        <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Expenses</CardDescription>
+                        <CardTitle className="text-3xl font-bold text-red-600 mt-1">{currencySymbol}{totalExpenses.toLocaleString()}</CardTitle>
                     </CardHeader>
                 </Card>
 
-                <Card className="border-0 shadow-sm">
+                <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Wallet className="h-12 w-12 text-primary" />
+                    </div>
                     <CardHeader className="pb-3">
-                        <CardDescription className="text-sm">Profit</CardDescription>
-                        <CardTitle className="text-3xl font-medium">{currencySymbol}{profit.toLocaleString()}</CardTitle>
+                        <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Net Profit</CardDescription>
+                        <CardTitle className="text-3xl font-bold text-foreground mt-1">{currencySymbol}{profit.toLocaleString()}</CardTitle>
                     </CardHeader>
                 </Card>
 
-                <Card className="border-0 shadow-sm transition-all hover:bg-muted/5">
+                <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl group">
                     <CardHeader className="pb-3">
-                        <CardDescription className="text-sm">Profit Margin</CardDescription>
-                        <CardTitle className="text-3xl font-medium">{totalRevenue > 0 ? ((profit / totalRevenue) * 100).toFixed(1) : 0}%</CardTitle>
-                        <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                            {profitMargin > 20 ? <TrendingUp className="h-3 w-3 text-green-500" /> : <AlertCircle className="h-3 w-3 text-amber-500" />}
-                            {profitMargin > 20 ? 'Healthy Margin' : 'Margin needs attention'}
+                        <CardDescription className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Profit Margin</CardDescription>
+                        <CardTitle className="text-3xl font-bold mt-1">{totalRevenue > 0 ? ((profit / totalRevenue) * 100).toFixed(1) : 0}%</CardTitle>
+                        <div className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1.5 font-medium">
+                            {profitMargin > 20 ?
+                                <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-0.5 rounded-full"><TrendingUp className="h-3 w-3" /> Healthy</span> :
+                                <span className="flex items-center gap-1 text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full"><AlertCircle className="h-3 w-3" /> Monitor</span>
+                            }
                         </div>
-                    </CardHeader>
-                </Card>
-
-                <Card className="border-0 shadow-sm">
-                    <CardHeader className="pb-3">
-                        <CardDescription className="text-sm">Burn Rate</CardDescription>
-                        <CardTitle className="text-3xl font-medium">{currencySymbol}{(totalExpenses / 12).toLocaleString(undefined, { maximumFractionDigits: 0 })}/mo</CardTitle>
-                        <div className="text-[10px] text-muted-foreground mt-1 italic">Based on yearly average</div>
                     </CardHeader>
                 </Card>
             </div>
 
-            <Card className="border-0 shadow-sm">
+            <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl overflow-hidden">
+                <CardHeader className="border-b border-border/20 bg-muted/20">
+                    <CardTitle className="text-lg font-semibold">Transaction History</CardTitle>
+                </CardHeader>
                 <CardContent className="p-0">
                     <Table>
                         <TableHeader>
@@ -2419,109 +2505,129 @@ const BizPilotDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="border-0 shadow-sm lg:col-span-2">
-                    <CardHeader>
-                        <CardTitle>Form Builder</CardTitle>
-                        <CardDescription>Create custom forms for client onboarding</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-2">
-                            <Label>Form Title</Label>
-                            <Input
-                                placeholder="e.g., Client Onboarding Form"
-                                className="rounded-xl"
-                                value={newForm.title}
-                                onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
-                            />
-                        </div>
-                        <div className="space-y-4">
-                            <Label>Questions</Label>
-                            {newForm.questions.map((q, idx) => (
-                                <div key={q.id} className="flex gap-3 p-4 rounded-xl border border-border/40 bg-muted/20 items-start group">
-                                    <div className="flex-1 space-y-3">
-                                        <Input
-                                            placeholder="Question text"
-                                            className="rounded-xl border-none bg-transparent focus:ring-1"
-                                            value={q.text}
-                                            onChange={(e) => {
-                                                const newQs = [...newForm.questions];
-                                                newQs[idx].text = e.target.value;
-                                                setNewForm({ ...newForm, questions: newQs });
-                                            }}
-                                        />
-                                        <div className="flex gap-4">
-                                            <Select
-                                                value={q.type}
-                                                onValueChange={(val) => {
-                                                    const newQs = [...newForm.questions];
-                                                    newQs[idx].type = val;
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl lg:col-span-2 overflow-hidden">
+                        <CardHeader className="bg-muted/10 border-b border-border/20">
+                            <CardTitle className="text-lg font-semibold">Form Builder</CardTitle>
+                            <CardDescription>Create custom forms for client onboarding</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6 pt-6">
+                            <div className="space-y-3">
+                                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Form Title</Label>
+                                <Input
+                                    placeholder="e.g., Client Onboarding Form"
+                                    className="rounded-2xl bg-muted/20 border-border/50 focus:bg-background transition-all h-12"
+                                    value={newForm.title}
+                                    onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-4">
+                                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Questions</Label>
+                                <AnimatePresence>
+                                    {newForm.questions.map((q, idx) => (
+                                        <motion.div
+                                            key={q.id}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            className="flex gap-4 p-5 rounded-2xl border border-border/50 bg-background/40 items-start group hover:border-primary/30 hover:bg-background/60 transition-all shadow-sm"
+                                        >
+                                            <div className="flex-1 space-y-4">
+                                                <Input
+                                                    placeholder="Enter question text..."
+                                                    className="rounded-xl border-none bg-transparent focus:ring-0 text-sm font-medium p-0 h-auto"
+                                                    value={q.text}
+                                                    onChange={(e) => {
+                                                        const newQs = [...newForm.questions];
+                                                        newQs[idx].text = e.target.value;
+                                                        setNewForm({ ...newForm, questions: newQs });
+                                                    }}
+                                                />
+                                                <div className="flex gap-4 items-center">
+                                                    <Select
+                                                        value={q.type}
+                                                        onValueChange={(val) => {
+                                                            const newQs = [...newForm.questions];
+                                                            newQs[idx].type = val;
+                                                            setNewForm({ ...newForm, questions: newQs });
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="w-[160px] h-9 text-xs rounded-xl bg-muted/20 border-none shadow-none">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="rounded-xl">
+                                                            <SelectItem value="text">Short Text</SelectItem>
+                                                            <SelectItem value="dropdown">Dropdown</SelectItem>
+                                                            <SelectItem value="checkbox">Checkbox</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <Badge variant="secondary" className="bg-primary/5 text-primary border-none text-[10px] px-2 py-0">#{idx + 1}</Badge>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="rounded-xl h-9 w-9 text-destructive opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10"
+                                                onClick={() => {
+                                                    const newQs = newForm.questions.filter(item => item.id !== q.id);
                                                     setNewForm({ ...newForm, questions: newQs });
                                                 }}
                                             >
-                                                <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="text">Short Text</SelectItem>
-                                                    <SelectItem value="dropdown">Dropdown</SelectItem>
-                                                    <SelectItem value="checkbox">Checkbox</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+                                <Button
+                                    variant="outline"
+                                    className="rounded-2xl w-full border-dashed border-2 py-8 hover:bg-primary/5 hover:border-primary/50 transition-all text-muted-foreground flex flex-col gap-2"
+                                    onClick={() => setNewForm({
+                                        ...newForm,
+                                        questions: [...newForm.questions, { id: Date.now().toString(), text: '', type: 'text' }]
+                                    })}
+                                >
+                                    <div className="p-2 bg-primary/10 rounded-full">
+                                        <Plus className="h-4 w-4 text-primary" />
                                     </div>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="rounded-lg h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={() => {
-                                            const newQs = newForm.questions.filter(item => item.id !== q.id);
-                                            setNewForm({ ...newForm, questions: newQs });
-                                        }}
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button
-                                variant="outline"
-                                className="rounded-xl w-full border-dashed"
-                                onClick={() => setNewForm({
-                                    ...newForm,
-                                    questions: [...newForm.questions, { id: Date.now().toString(), text: '', type: 'text' }]
-                                })}
-                            >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add Question
-                            </Button>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button className="rounded-xl px-8" onClick={() => {
-                                addActivity('forms', `Form saved: ${newForm.title || 'Untitled'}`);
-                            }}>Save Form</Button>
-                            <Button variant="outline" className="rounded-xl" onClick={handleGenerateFormLink}>Link</Button>
-                            <Button variant="outline" className="rounded-xl" onClick={() => handleExportPDF(newForm, 'form')}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Export
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                                    <span className="text-xs font-semibold">Add New Question</span>
+                                </Button>
+                            </div>
+                            <div className="flex gap-3 pt-4 border-t border-border/20">
+                                <Button className="rounded-2xl px-10 h-11 bg-primary shadow-lg shadow-primary/20" onClick={() => {
+                                    addActivity('forms', `Form saved: ${newForm.title || 'Untitled'}`);
+                                }}>Save Form</Button>
+                                <Button variant="outline" className="rounded-2xl h-11 px-6 border-border/50 hover:bg-muted" onClick={handleGenerateFormLink}>
+                                    <LinkIcon className="h-4 w-4 mr-2" /> Share Link
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
 
-                <Card className="border-0 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Form Stats</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="p-6 text-center border-2 border-dashed border-border/40 rounded-2xl">
-                            <div className="text-3xl font-semibold">{forms.reduce((acc, f) => acc + (f.responses?.length || 0), 0)}</div>
-                            <p className="text-xs text-muted-foreground mt-1 text-center">Total Responses Across {forms.length} Forms</p>
-                        </div>
-                        <div className="space-y-2 pt-4">
-                            <p className="text-xs font-medium uppercase text-muted-foreground tracking-wider">Instructions</p>
-                            <p className="text-xs text-muted-foreground">Share the generated link with your clients. Responses will be automatically collected and displayed here.</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                    <Card className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl h-fit">
+                        <CardHeader>
+                            <CardTitle className="text-lg font-semibold">Form Stats</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div className="p-8 text-center border-2 border-dashed border-border/30 rounded-[2rem] bg-muted/10 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="text-5xl font-bold text-primary mb-2 transition-transform group-hover:scale-110 duration-500">
+                                    {forms.reduce((acc, f) => acc + (f.responses?.length || 0), 0)}
+                                </div>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Total Responses</p>
+                                <p className="text-[10px] text-muted-foreground/60 mt-1">Across {forms.length} Published Forms</p>
+                            </div>
+                            <div className="space-y-3 pt-2">
+                                <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                                    <HelpCircle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
+                                    <div className="space-y-1">
+                                        <p className="text-xs font-bold text-amber-600">Pro Tip</p>
+                                        <p className="text-[10px] text-amber-800/70 leading-relaxed">Share links directly via email or embed them in your website for automated lead capture.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         </div>
     );
@@ -2538,20 +2644,20 @@ const BizPilotDashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {Object.entries(auditChecklist).map(([category, items]) => (
-                    <Card key={category} className="border-0 shadow-sm">
-                        <CardHeader>
-                            <CardTitle className="text-lg">{category}</CardTitle>
+                    <Card key={category} className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl overflow-hidden">
+                        <CardHeader className="bg-muted/10 border-b border-border/20">
+                            <CardTitle className="text-lg font-semibold">{category}</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
+                        <CardContent className="space-y-3 pt-6">
                             {items.map((item, idx) => (
-                                <div key={idx} className="flex items-center space-x-3">
+                                <div key={idx} className="flex items-center space-x-3 group cursor-pointer hover:bg-muted/50 p-2 rounded-xl transition-colors" onClick={() => toggleAuditItem(`${category}-${item}`)}>
                                     <Checkbox
                                         id={`${category}-${idx}`}
-                                        className="rounded"
+                                        className="rounded-lg h-5 w-5 border-border/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all"
                                         checked={auditScores[`${category}-${item}`] || false}
-                                        onCheckedChange={() => toggleAuditItem(`${category}-${item}`)}
+                                        onCheckedChange={() => { }}
                                     />
-                                    <Label htmlFor={`${category}-${idx}`} className="text-sm font-normal cursor-pointer">
+                                    <Label htmlFor={`${category}-${idx}`} className="text-sm font-medium cursor-pointer flex-1 group-hover:text-primary transition-colors">
                                         {item}
                                     </Label>
                                 </div>
@@ -2561,14 +2667,27 @@ const BizPilotDashboard = () => {
                 ))}
             </div>
 
-            <Card className="border-0 shadow-sm">
+            <Card className="border-border/50 shadow-2xl shadow-primary/10 bg-background/80 backdrop-blur-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -mr-16 -mt-16 blur-3xl" />
                 <CardHeader>
-                    <CardTitle>Audit Score</CardTitle>
+                    <CardTitle className="text-xl font-bold flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-primary" />
+                        Final Audit Score
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="text-center">
-                        <div className="text-5xl font-semibold mb-2">{calculateAuditScore()}%</div>
-                        <p className="text-muted-foreground">Complete the checklist to see your score</p>
+                    <div className="text-center py-6">
+                        <div className="text-7xl font-black bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent mb-4 tracking-tighter">
+                            {calculateAuditScore()}%
+                        </div>
+                        <p className="text-muted-foreground font-medium">Complete the checklist to maximize your score and conversion.</p>
+                        <div className="w-full bg-muted/30 h-3 rounded-full mt-8 overflow-hidden border border-border/50">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${calculateAuditScore()}%` }}
+                                className="h-full bg-primary shadow-[0_0_20px_rgba(var(--primary),0.5)]"
+                            />
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -2582,25 +2701,34 @@ const BizPilotDashboard = () => {
             </div>
 
             <Tabs defaultValue="Sales" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 rounded-xl">
-                    <TabsTrigger value="Sales" className="rounded-lg">Sales</TabsTrigger>
-                    <TabsTrigger value="Follow-ups" className="rounded-lg">Follow-ups</TabsTrigger>
-                    <TabsTrigger value="Objections" className="rounded-lg">Objections</TabsTrigger>
+                <TabsList className="flex gap-2 bg-muted/40 backdrop-blur-sm p-1.5 w-fit rounded-2xl border border-border/50 mb-6">
+                    {['Sales', 'Follow-ups', 'Objections'].map((tab) => (
+                        <TabsTrigger
+                            key={tab}
+                            value={tab}
+                            className="rounded-xl px-6 py-2 text-xs font-semibold transition-all data-[state=active]:bg-background data-[state=active]:shadow-lg data-[state=active]:text-primary"
+                        >
+                            {tab}
+                        </TabsTrigger>
+                    ))}
                 </TabsList>
                 {Object.entries(scripts).map(([category, scriptList]) => (
-                    <TabsContent key={category} value={category} className="space-y-4">
+                    <TabsContent key={category} value={category} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {scriptList.map((script, idx) => (
-                            <Card key={idx} className="border-0 shadow-sm">
-                                <CardContent className="p-6">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <p className="text-sm flex-1">{script}</p>
+                            <Card key={idx} className="border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl group hover:border-primary/50 transition-all overflow-hidden">
+                                <CardContent className="p-8 relative">
+                                    <div className="absolute top-0 right-0 p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <div className="p-1 px-2 rounded-lg bg-primary/10 text-primary text-[10px] font-bold">Template #{idx + 1}</div>
+                                    </div>
+                                    <div className="flex flex-col gap-6">
+                                        <p className="text-sm leading-relaxed text-foreground/80 font-medium italic">"{script}"</p>
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="rounded-lg"
+                                            className="rounded-xl self-end h-10 px-4 hover:bg-primary/10 hover:text-primary transition-all border border-border/20"
                                             onClick={() => handleCopy(script)}
                                         >
-                                            <Copy className="h-4 w-4" />
+                                            <Copy className="h-4 w-4 mr-2" /> Copy Script
                                         </Button>
                                     </div>
                                 </CardContent>
@@ -2668,43 +2796,392 @@ const BizPilotDashboard = () => {
                 </Dialog>
             </div>
 
-            <div className="flex gap-2 items-center">
-                <div className="relative flex-1">
-                    <Input placeholder="Search notes..." className="rounded-xl" />
+            <div className="flex gap-4 items-center bg-background/40 backdrop-blur-md p-3 rounded-2xl border border-border/50">
+                <div className="relative flex-1 group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <Input
+                        placeholder="Search your secure vault..."
+                        className="rounded-xl border-none bg-muted/20 pl-11 h-11 focus-visible:bg-background transition-all"
+                    />
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-border/50"><Search className="h-4 w-4" /></Button>
+                    <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-border/50"><MoreVertical className="h-4 w-4" /></Button>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {notes.map((note) => (
-                    <Card key={note.id} className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-                        <CardHeader>
-                            <div className="flex justify-between items-start">
-                                <CardTitle className="text-lg">{note.title}</CardTitle>
-                                {note.isSensitive && <Lock className="h-3.5 w-3.5 text-destructive" />}
-                            </div>
-                            <CardDescription>{note.date}</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-muted-foreground line-clamp-3 mb-3">{note.content}</p>
-                            <div className="flex gap-2 flex-wrap">
-                                {note.isSensitive && (
-                                    <Badge variant="destructive" className="text-[10px] rounded-full flex items-center gap-1">
-                                        <Lock className="h-2 w-2" />
-                                        Encrypted
-                                    </Badge>
-                                )}
-                                {note.tags.map((tag, idx) => (
-                                    <Badge key={idx} variant="secondary" className="rounded-full text-xs">
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <AnimatePresence>
+                    {notes.map((note) => (
+                        <motion.div
+                            key={note.id}
+                            layout
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            whileHover={{ y: -4 }}
+                            className="group cursor-pointer"
+                        >
+                            <Card className="h-full border-border/50 shadow-xl shadow-primary/5 bg-background/60 backdrop-blur-xl hover:border-primary/50 hover:shadow-primary/10 transition-all overflow-hidden flex flex-col">
+                                <CardHeader className="pb-3">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="space-y-1">
+                                            <CardTitle className="text-sm font-bold line-clamp-1 group-hover:text-primary transition-colors">{note.title}</CardTitle>
+                                            <CardDescription className="text-[10px] flex items-center gap-1.5">
+                                                <Calendar className="h-3 w-3" /> {note.date}
+                                            </CardDescription>
+                                        </div>
+                                        {note.isSensitive && (
+                                            <div className="p-1.5 rounded-lg bg-destructive/10 text-destructive">
+                                                <Lock className="h-3.5 w-3.5" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="flex-1 pb-6">
+                                    <p className="text-xs text-muted-foreground line-clamp-4 leading-relaxed font-medium mb-6">
+                                        {note.isSensitive ? '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••' : note.content}
+                                    </p>
+                                    <div className="flex gap-2 flex-wrap mt-auto">
+                                        {note.isSensitive && (
+                                            <Badge variant="destructive" className="text-[10px] rounded-full px-2.5 py-0.5 bg-destructive/10 text-destructive border-none font-bold">
+                                                Private
+                                            </Badge>
+                                        )}
+                                        {note.tags.map((tag, idx) => (
+                                            <Badge key={idx} variant="secondary" className="rounded-full text-[10px] px-2.5 py-0.5 bg-primary/5 text-primary border-none font-bold">
+                                                #{tag}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+                <Button
+                    variant="outline"
+                    className="h-full min-h-[220px] rounded-3xl border-dashed border-2 flex flex-col gap-4 group hover:bg-primary/5 hover:border-primary/50 transition-all"
+                    onClick={() => { }}
+                >
+                    <div className="p-4 bg-primary/10 rounded-2xl group-hover:scale-110 transition-transform">
+                        <Plus className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                        <p className="font-bold text-sm">Add New Note</p>
+                        <p className="text-xs text-muted-foreground mt-1">Securely store business data</p>
+                    </div>
+                </Button>
             </div>
         </div>
     );
+
+    const renderTeam = () => {
+        const [isAddingMember, setIsAddingMember] = useState(false);
+        const [assigningTo, setAssigningTo] = useState<string | null>(null);
+        const [newTeamMember, setNewTeamMember] = useState({
+            fullName: '',
+            email: '',
+            phone: '',
+            role: 'Telecaller'
+        });
+
+        const handleAddTeamMember = async () => {
+            if (!newTeamMember.fullName || !newTeamMember.email) return;
+
+            try {
+                const response = await fetch('/api/team/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newTeamMember)
+                });
+
+                if (response.ok) {
+                    addActivity('team', `Added new team member: ${newTeamMember.fullName}`);
+                    setIsAddingMember(false);
+                    setNewTeamMember({ fullName: '', email: '', phone: '', role: 'Telecaller' });
+                    // Re-fetch profile to get updated employee list
+                    const { data: profile } = await supabase
+                        .from('user_profiles')
+                        .select('*')
+                        .single();
+                    if (profile) setUserProfile(profile as any);
+                }
+            } catch (error) {
+                console.error('Error adding team member:', error);
+            }
+        };
+
+        const totalLeads = leads.length;
+        const totalConversions = leads.filter(l => l.status === 'Closed').length;
+        const efficiencyRating = totalLeads > 0 ? Math.round((totalConversions / totalLeads) * 100) : 0;
+        const unassignedLeads = leads.filter(l => !l.assignedTo);
+
+        return (
+            <div className="space-y-8">
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Force Management</span>
+                        </div>
+                        <h1 className="text-4xl font-extrabold tracking-tight">Team Command</h1>
+                        <p className="text-muted-foreground font-medium">Coordinate your sales force and monitor lead conversion performance.</p>
+                    </div>
+
+                    <Dialog open={isAddingMember} onOpenChange={setIsAddingMember}>
+                        <DialogTrigger asChild>
+                            <Button
+                                disabled={activeRole !== 'Owner'}
+                                className="rounded-2xl h-12 px-6 font-bold shadow-lg shadow-primary/20 gap-2 disabled:opacity-50"
+                            >
+                                <Plus className="h-5 w-5" /> Enlist Member
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="rounded-[2.5rem] border-border bg-popover/90 backdrop-blur-xl max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle className="text-2xl font-black tracking-tight">Add Team Member</DialogTitle>
+                                <DialogDescription className="font-medium">Create a new account for your telecaller or sales representative.</DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Full Name</Label>
+                                        <Input
+                                            placeholder="John Doe"
+                                            className="rounded-xl border-border bg-muted/50 h-11"
+                                            value={newTeamMember.fullName}
+                                            onChange={(e) => setNewTeamMember({ ...newTeamMember, fullName: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Email Address</Label>
+                                        <Input
+                                            type="email"
+                                            placeholder="john@example.com"
+                                            className="rounded-xl border-border bg-muted/50 h-11"
+                                            value={newTeamMember.email}
+                                            onChange={(e) => setNewTeamMember({ ...newTeamMember, email: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Phone Number</Label>
+                                        <Input
+                                            placeholder="+1 (555) 000-0000"
+                                            className="rounded-xl border-border bg-muted/50 h-11"
+                                            value={newTeamMember.phone}
+                                            onChange={(e) => setNewTeamMember({ ...newTeamMember, phone: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Role</Label>
+                                        <Select
+                                            value={newTeamMember.role}
+                                            onValueChange={(val) => setNewTeamMember({ ...newTeamMember, role: val })}
+                                        >
+                                            <SelectTrigger className="rounded-xl border-border bg-muted/50 h-11">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl border-border bg-popover/90 backdrop-blur-lg">
+                                                <SelectItem value="Telecaller">Telecaller</SelectItem>
+                                                <SelectItem value="Sales">Sales Professional</SelectItem>
+                                                <SelectItem value="Manager">Field Manager</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <Button className="w-full rounded-xl h-12 font-bold shadow-lg shadow-primary/20 mt-2" onClick={handleAddTeamMember}>
+                                    Confirm enlistment
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                </header>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="border border-border/50 shadow-xl bg-card/40 backdrop-blur-xl overflow-hidden rounded-[2rem] relative">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 blur-3xl -z-10" />
+                        <CardHeader className="pb-2">
+                            <CardDescription className="text-xs font-black uppercase tracking-widest text-muted-foreground">Active Force</CardDescription>
+                            <CardTitle className="text-4xl font-extrabold mt-1 tracking-tighter">{(userProfile.employees || []).length}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center text-xs font-bold text-primary bg-primary/5 w-fit px-3 py-1.5 rounded-full border border-primary/10">
+                                <Users className="h-3.5 w-3.5 mr-1.5" /> Ready for Action
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border border-border/50 shadow-xl bg-card/40 backdrop-blur-xl overflow-hidden rounded-[2rem] relative">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 blur-3xl -z-10" />
+                        <CardHeader className="pb-2">
+                            <CardDescription className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Conversions</CardDescription>
+                            <CardTitle className="text-4xl font-extrabold mt-1 tracking-tighter">{totalConversions}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center text-xs font-bold text-emerald-500 bg-emerald-500/5 w-fit px-3 py-1.5 rounded-full border border-emerald-500/10">
+                                <TrendingUp className="h-3.5 w-3.5 mr-1.5" /> Conversion Metric
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="border border-border/50 shadow-xl bg-card/40 backdrop-blur-xl overflow-hidden rounded-[2rem] relative">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 blur-3xl -z-10" />
+                        <CardHeader className="pb-2">
+                            <CardDescription className="text-xs font-black uppercase tracking-widest text-muted-foreground">Efficiency Rating</CardDescription>
+                            <CardTitle className="text-4xl font-extrabold mt-1 tracking-tighter">{efficiencyRating}%</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center text-xs font-bold text-blue-500 bg-blue-500/5 w-fit px-3 py-1.5 rounded-full border border-blue-500/10">
+                                <CheckSquare className="h-3.5 w-3.5 mr-1.5" /> Performance Ops
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {(userProfile.employees || []).length === 0 ? (
+                        <Card className="lg:col-span-2 border border-dashed border-border/50 bg-muted/10 rounded-[2.5rem] p-12 text-center">
+                            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <Users className="h-10 w-10 text-primary opacity-50" />
+                            </div>
+                            <h3 className="text-2xl font-black tracking-tight mb-2">No active personnel</h3>
+                            <p className="text-muted-foreground max-w-md mx-auto mb-8 font-medium">Your sales force is empty. Enlist team members to start distributing leads and tracking performance.</p>
+                            <Button onClick={() => setIsAddingMember(true)} className="rounded-xl h-11 px-8 font-bold">Enlist Your First Member</Button>
+                        </Card>
+                    ) : (
+                        (userProfile.employees || []).map((emp) => {
+                            const empLeads = leads.filter(l => l.assignedTo === emp.id);
+                            const empConversions = empLeads.filter(l => l.status === 'Closed').length;
+                            const empConversionRate = empLeads.length > 0 ? Math.round((empConversions / empLeads.length) * 100) : 0;
+
+                            return (
+                                <motion.div
+                                    key={emp.id}
+                                    whileHover={{ y: -5 }}
+                                    className="group"
+                                >
+                                    <Card className="border border-border/50 shadow-2xl bg-card/40 backdrop-blur-xl overflow-hidden rounded-[2.5rem] transition-all hover:border-primary/50 relative">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[80px] -z-10 group-hover:bg-primary/10 transition-colors" />
+                                        <CardContent className="p-8">
+                                            <div className="flex justify-between items-start mb-8">
+                                                <div className="flex items-center gap-5">
+                                                    <Avatar className="h-16 w-16 border-2 border-primary/20 shadow-xl group-hover:scale-105 transition-transform">
+                                                        <AvatarFallback className="bg-primary text-primary-foreground text-xl font-black">
+                                                            {emp.name.split(' ').map(n => n[0]).join('')}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <h3 className="text-xl font-extrabold tracking-tight group-hover:text-primary transition-colors">{emp.name}</h3>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <Badge variant="outline" className="rounded-full text-[10px] font-black uppercase tracking-widest border-primary/30 text-primary py-0 px-2">{emp.role}</Badge>
+                                                            <Badge variant="secondary" className="rounded-full text-[10px] font-black uppercase tracking-widest py-0 px-2 opacity-70">Active</Badge>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon" className="rounded-xl hover:bg-primary/10 transition-colors">
+                                                            <MoreVertical className="h-5 w-5 text-muted-foreground" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end" className="rounded-2xl border-border bg-popover/90 backdrop-blur-lg">
+                                                        <DropdownMenuItem className="rounded-xl font-bold p-3">View Detailed Intel</DropdownMenuItem>
+                                                        <DropdownMenuItem className="rounded-xl font-bold p-3">Modify Permissions</DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem onClick={() => handleDeleteEmployee(emp.id)} className="rounded-xl font-bold p-3 text-destructive">Decommission Member</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                                <div className="p-5 rounded-3xl bg-muted/30 border border-border/50 space-y-1">
+                                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Leads Deployed</p>
+                                                    <p className="text-2xl font-black tracking-tighter">{empLeads.length}</p>
+                                                </div>
+                                                <div className="p-5 rounded-3xl bg-muted/30 border border-border/50 space-y-1">
+                                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Conversion Rate</p>
+                                                    <p className="text-2xl font-black tracking-tighter">{empConversionRate}%</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex gap-3">
+                                                <Dialog open={assigningTo === emp.id} onOpenChange={(open) => !open && setAssigningTo(null)}>
+                                                    <DialogTrigger asChild>
+                                                        <Button
+                                                            disabled={activeRole !== 'Owner'}
+                                                            onClick={() => setAssigningTo(emp.id)}
+                                                            className="flex-1 rounded-2xl h-12 font-bold shadow-lg shadow-primary/10 transition-all hover:shadow-primary/20 active:scale-[0.98] disabled:opacity-50"
+                                                        >
+                                                            Assign New Lead
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="rounded-[2.5rem] border-border bg-popover/90 backdrop-blur-xl max-w-md">
+                                                        <DialogHeader>
+                                                            <DialogTitle className="text-2xl font-black tracking-tight">Deploy Lead to {emp.name}</DialogTitle>
+                                                            <DialogDescription className="font-medium">Directly assign an unassigned lead to this team member.</DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="space-y-4 pt-4">
+                                                            {unassignedLeads.length === 0 ? (
+                                                                <div className="text-center py-8 opacity-50 bg-muted/20 rounded-2xl border border-dashed border-border">
+                                                                    <p className="font-bold">No unassigned leads available</p>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                                                    {unassignedLeads.map(lead => (
+                                                                        <Button
+                                                                            key={lead.id}
+                                                                            variant="outline"
+                                                                            className="w-full justify-start rounded-xl p-6 h-auto border-border/50 hover:bg-primary/5 hover:border-primary/30 group"
+                                                                            onClick={async () => {
+                                                                                const updatedLeads = leads.map(l => l.id === lead.id ? { ...l, assignedTo: emp.id } : l);
+                                                                                setLeads(updatedLeads);
+                                                                                addActivity('team', `Lead ${lead.name} manual-deployed to ${emp.name}`);
+
+                                                                                // Automated Task Trigger
+                                                                                const newTaskObj: Task = {
+                                                                                    id: Date.now().toString(),
+                                                                                    title: `Process Lead: ${lead.name}`,
+                                                                                    status: 'To-Do',
+                                                                                    priority: lead.quality === 'Hot' ? 'High' : (lead.quality === 'Warm' ? 'Medium' : 'Low'),
+                                                                                    dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                                                                                    subtasks: [],
+                                                                                    assignedTo: emp.id,
+                                                                                    history: [`Manual-assigned via Team Command by Owner`]
+                                                                                };
+                                                                                setTasks(prev => [newTaskObj, ...prev]);
+                                                                                await syncToSupabase('tasks', newTaskObj);
+                                                                                await syncToSupabase('leads', { ...lead, assignedTo: emp.id });
+                                                                                setAssigningTo(null);
+                                                                            }}
+                                                                        >
+                                                                            <div className="text-left">
+                                                                                <p className="font-bold group-hover:text-primary transition-colors">{lead.name}</p>
+                                                                                <p className="text-[10px] font-black uppercase opacity-60 mt-1">{lead.source} • {lead.quality} Quality</p>
+                                                                            </div>
+                                                                        </Button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                            <Button variant="ghost" className="w-full rounded-xl" onClick={() => setAssigningTo(null)}>Cancel Mission</Button>
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+                                                <Button variant="outline" size="icon" className="h-12 w-12 rounded-2xl border-border/50 hover:bg-primary/5 transition-colors" onClick={() => window.location.href = `mailto:${emp.email}`}>
+                                                    <Mail className="h-5 w-5" />
+                                                </Button>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            );
+                        })
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     const renderProfile = () => (
         <div className="space-y-6">
@@ -3476,7 +3953,8 @@ const BizPilotDashboard = () => {
             case 'dashboard': return renderDashboard();
             case 'content': return renderContentBuilder();
             case 'invoices': return renderInvoices();
-            case 'crm': return renderCRM();
+            case 'leads': return renderLeads();
+            case 'team': return renderTeam();
             case 'tasks': return renderTasks();
             case 'proposals': return renderProposals();
             case 'finance': return renderFinance();
@@ -3492,160 +3970,179 @@ const BizPilotDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB]">
-            <div className="flex">
-                <aside className="w-64 min-h-screen bg-white border-r border-border/40 fixed left-0 top-0 flex flex-col">
-                    <div className="p-6 flex-1">
-                        <div className="flex items-center gap-3 mb-8">
-                            <img
-                                src="/logo.png"
-                                alt="BizPilot OS"
-                                style={{ height: '64px', width: 'auto' }}
-                            />
-                        </div>
-                        <nav className="space-y-1">
-                            {navItems.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = activeView === item.id;
-                                return (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => setActiveView(item.id)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${isActive
-                                            ? 'bg-primary/10 text-primary font-medium'
-                                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                                            }`}
-                                    >
-                                        {isActive && <div className="absolute left-0 w-1 h-8 bg-primary rounded-r" />}
-                                        <Icon className="h-4 w-4" />
-                                        {item.label}
-                                    </button>
-                                );
-                            })}
-                        </nav>
+        <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
+            {/* Sidebar */}
+            <aside className="w-64 bg-card border-r border-border flex flex-col z-40 backdrop-blur-xl bg-card/80">
+                <div className="p-6 border-b border-border flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                        <svg className="w-6 h-6 text-primary-foreground" viewBox="0 0 100 100" fill="none">
+                            <path d="M20 80L50 20L80 50L65 50L50 35L35 65L50 65L65 80L20 80Z" fill="currentColor" />
+                        </svg>
                     </div>
-                    <div className="p-6 border-t border-border/40">
-                        <nav className="space-y-1">
-                            {bottomNavItems.map((item) => {
-                                const Icon = item.icon;
-                                const isActive = activeView === item.id;
-                                return (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => setActiveView(item.id)}
-                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${isActive
-                                            ? 'bg-primary/10 text-primary font-medium'
-                                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
-                                            }`}
-                                    >
-                                        <Icon className="h-4 w-4" />
-                                        {item.label}
-                                    </button>
-                                );
-                            })}
-                            <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all text-destructive hover:bg-destructive/10"
-                            >
-                                <LogOut className="h-4 w-4" />
-                                Logout
-                            </button>
-                        </nav>
-                    </div>
-                </aside>
+                    <span className="font-bold text-xl tracking-tight">BizPilot<span className="font-light opacity-70">OS</span></span>
+                </div>
 
-                <div className="flex-1 ml-64">
-                    <header className="h-16 bg-white/80 backdrop-blur-sm border-b border-border/40 sticky top-0 z-10">
-                        <div className="h-full px-8 flex items-center justify-end gap-4">
-                            <DropdownMenu>
-                                {activeRole === 'Owner' && (
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="outline" size="sm" className="rounded-xl h-9 border-dashed mr-4">
-                                                <Lock className="mr-2 h-3.5 w-3.5" /> Staff Login
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="max-w-sm">
-                                            <DialogHeader>
-                                                <DialogTitle>Staff Login</DialogTitle>
-                                                <DialogDescription>Enter your employee credentials to access your dashboard</DialogDescription>
-                                            </DialogHeader>
-                                            <div className="space-y-4 pt-4">
-                                                <div className="space-y-2">
-                                                    <Label>Email Address</Label>
-                                                    <Input
-                                                        placeholder="email@example.com"
-                                                        className="rounded-xl"
-                                                        value={loginEmail}
-                                                        onChange={(e) => setLoginEmail(e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label>Password</Label>
-                                                    <Input
-                                                        type="password"
-                                                        placeholder="••••••••"
-                                                        className="rounded-xl"
-                                                        value={loginPassword}
-                                                        onChange={(e) => setLoginPassword(e.target.value)}
-                                                    />
-                                                </div>
-                                                {loginError && <p className="text-xs text-destructive">{loginError}</p>}
-                                                <Button className="w-full rounded-xl" onClick={handleManualEmployeeLogin}>Login to Pilot</Button>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
+                <nav className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
+                    {navItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeView === item.id;
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={() => setActiveView(item.id)}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                                    }`}
+                            >
+                                <Icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-primary'}`} />
+                                <span className="font-semibold text-sm">{item.label}</span>
+                                {isActive && (
+                                    <motion.div layoutId="activeNav" className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-foreground" />
                                 )}
+                            </button>
+                        );
+                    })}
+                </nav>
+
+                <div className="p-4 border-t border-border space-y-2">
+                    {bottomNavItems.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = activeView === item.id;
+                        return (
+                            <button
+                                key={item.id}
+                                onClick={() => setActiveView(item.id)}
+                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+                            >
+                                <Icon className="h-5 w-5" />
+                                <span className="font-semibold text-sm">{item.label}</span>
+                            </button>
+                        );
+                    })}
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-destructive hover:bg-destructive/10 transition-all font-semibold text-sm"
+                    >
+                        <LogOut className="h-5 w-5" />
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </aside>
+
+            <main className="flex-1 flex flex-col overflow-hidden relative ml-64">
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] -z-10 rounded-full" />
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary/5 blur-[100px] -z-10 rounded-full" />
+
+                {/* Header */}
+                <header className="h-20 border-b border-border flex items-center justify-between px-8 bg-background/60 backdrop-blur-md z-30">
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-2xl font-bold tracking-tight capitalize">{activeView.replace('-', ' ')}</h2>
+                        {isPaid && (
+                            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 font-bold px-3 py-1">
+                                PRO ACCESS
+                            </Badge>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {activeRole === 'Owner' && (
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" size="sm" className="rounded-xl h-9 border-dashed mr-4 font-bold tracking-tight">
+                                        <Lock className="mr-2 h-3.5 w-3.5" /> Staff Login
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-sm rounded-[2rem] border-border bg-popover/90 backdrop-blur-xl">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-2xl font-bold tracking-tight">Staff Login</DialogTitle>
+                                        <DialogDescription className="font-medium">Enter your employee credentials to access your dashboard</DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 pt-4">
+                                        <div className="space-y-2">
+                                            <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Email Address</Label>
+                                            <Input
+                                                placeholder="email@example.com"
+                                                className="rounded-xl border-border bg-muted/50 h-11"
+                                                value={loginEmail}
+                                                onChange={(e) => setLoginEmail(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Password</Label>
+                                            <Input
+                                                type="password"
+                                                placeholder="••••••••"
+                                                className="rounded-xl border-border bg-muted/50 h-11"
+                                                value={loginPassword}
+                                                onChange={(e) => setLoginPassword(e.target.value)}
+                                            />
+                                        </div>
+                                        {loginError && <p className="text-xs text-destructive font-bold">{loginError}</p>}
+                                        <Button className="w-full rounded-xl h-11 font-bold shadow-lg shadow-primary/20" onClick={handleManualEmployeeLogin}>Login to Pilot</Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        )}
+
+                        <div className="flex items-center gap-2 border-l border-border pl-4">
+                            <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <button className="flex items-center gap-3 hover:bg-muted/50 rounded-xl px-3 py-2 transition-colors">
-                                        <div className="text-right">
-                                            <div className="text-sm font-medium">
+                                    <button className="flex items-center gap-3 hover:bg-muted/30 rounded-full px-1 py-1 transition-all border border-border bg-muted/10 group">
+                                        <div className="text-right hidden sm:block pl-3">
+                                            <div className="text-xs font-bold leading-none">
                                                 {activeRole === 'Employee'
                                                     ? (userProfile.employees?.find(e => e.id === activeEmployeeId)?.name || 'Employee')
                                                     : userProfile.name}
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <Badge variant="secondary" className="rounded-full text-xs">{userProfile.plan}</Badge>
-                                                <Badge variant="outline" className="rounded-full text-xs">Active</Badge>
+                                            <div className="flex items-center gap-2 mt-0.5">
+                                                <Badge variant="secondary" className="rounded-full text-[8px] font-black uppercase tracking-tighter py-0 px-1.5">{userProfile.plan}</Badge>
+                                                <Badge variant="outline" className="rounded-full text-[8px] font-black uppercase tracking-tighter py-0 px-1.5 border-primary/20 text-primary">Active</Badge>
                                             </div>
                                         </div>
-                                        <Avatar className="h-9 w-9 border-2 border-primary/10">
-                                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                                        <Avatar className="h-9 w-9 border-2 border-background shadow-md group-hover:scale-105 transition-transform">
+                                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-black">
                                                 {userProfile.name.split(' ').map(n => n[0]).join('')}
                                             </AvatarFallback>
                                         </Avatar>
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-48">
-                                    <DropdownMenuItem onClick={() => setActiveView('profile')}>
-                                        <User className="mr-2 h-4 w-4" />
-                                        Profile
+                                <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-popover/90 backdrop-blur-lg border-border shadow-2xl">
+                                    <div className="px-3 py-3 border-b border-border/50 mb-1">
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Account</p>
+                                        <p className="text-sm font-bold truncate">{userProfile.email}</p>
+                                    </div>
+                                    <DropdownMenuItem onClick={() => setActiveView('profile')} className="rounded-xl cursor-pointer py-3 font-bold group">
+                                        <User className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" /> Profile
                                     </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        Logout
+                                    <DropdownMenuItem onClick={() => setActiveView('settings')} className="rounded-xl cursor-pointer py-3 font-bold group">
+                                        <Settings className="mr-3 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" /> Settings
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator className="bg-border/50 mx-2" />
+                                    <DropdownMenuItem onClick={handleLogout} className="rounded-xl cursor-pointer py-3 text-destructive font-bold group">
+                                        <LogOut className="mr-3 h-4 w-4 opacity-70 group-hover:opacity-100 transition-opacity" /> Sign out
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
-                    </header>
+                    </div>
+                </header>
 
-                    <main className="p-8">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={activeView}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                {renderContent()}
-                            </motion.div>
-                        </AnimatePresence>
-                    </main>
-                </div>
-            </div>
+                <main className="p-8">
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeView}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            {renderContent()}
+                        </motion.div>
+                    </AnimatePresence>
+                </main>
+            </main>
         </div>
     );
 };

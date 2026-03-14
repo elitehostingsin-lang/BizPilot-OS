@@ -40,17 +40,40 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const { error: authError } = await supabase.auth.signInWithPassword({
+            // 1. Attempt Supabase Auth (Owner)
+            const { data, error: authError } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
 
-            if (authError) {
-                setError(authError.message);
-                setIsLoading(false);
-            } else {
+            if (!authError) {
+                localStorage.setItem('bizpilot_role', 'Owner');
                 router.push("/dashboard");
+                return;
             }
+
+            // 2. Fallback to Employee Check (Stored in User Profile)
+            const { data: profiles } = await supabase
+                .from('user_profiles')
+                .select('employees')
+                .limit(1)
+                .single();
+
+            if (profiles?.employees) {
+                const employee = (profiles.employees as any[]).find(
+                    (emp: any) => emp.email === email && emp.password === password
+                );
+
+                if (employee) {
+                    localStorage.setItem('bizpilot_role', 'Employee');
+                    localStorage.setItem('bizpilot_employee_id', employee.id);
+                    router.push("/dashboard");
+                    return;
+                }
+            }
+
+            setError(authError.message || "Invalid credentials");
+            setIsLoading(false);
         } catch (err: any) {
             setError(err.message || "An unexpected error occurred");
             setIsLoading(false);
